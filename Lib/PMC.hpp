@@ -1,10 +1,11 @@
-#include <vector>
-#include <random>
+#pragma once
+
 #include <ctime>
+#include <cmath>
+#include <random>
+#include <vector>
 
 using namespace std;
-
-#pragma once
 
 class PMC
 {
@@ -22,5 +23,5 @@ public:
 
     void propagate(vector<float> inputs, bool isClassification);
     vector<float> predict(vector<float> inputs, bool isClassification);
-    void train(vector<vector<float>> xTrain, vector<vector<float>> yTrain, bool isClassification, float alpha = 0.01, int nb_iter = 10000);
+    void train(vector<vector<float>> xTrain, vector<vector<float>> yTrain, bool isClassification, float alpha = 0.01, int nbIter = 10000);
 };
