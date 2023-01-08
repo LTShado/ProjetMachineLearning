@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import math
 from ctypes import *
 
-PATH_TO_SHARED_LIBRARY = "../Library/ScriptAssemblies/Assemnly-CSharp.dll"
+PATH_TO_SHARED_LIBRARY = "MachineLearningLib/x64/Debug/MachineLearningLib.dll"
 
 points = np.array([
     [1, 1],
@@ -37,3 +37,4 @@ plt.show()
 if __name__ == "__main__":
     # Load lib
     my_lib = cdll.LoadLibrary(PATH_TO_SHARED_LIBRARY)
+    print('test')
