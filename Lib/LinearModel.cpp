@@ -19,24 +19,6 @@ LinearModel::LinearModel()
     trainning();
 }
 
-void LinearModel::display()
-{
-    // Affichage
-    vector<array<float, 2>> test_points;
-    vector<string> test_colors;
-    for (int row = 0; row < 300; ++row)
-    {
-        for (int col = 0; col < 300; ++col)
-        {
-            array<float, 2> p{{col / 100.0f, row / 100.0f}};
-            vector<float> x{1.0, p[0], p[1]};
-            string c = (inner_product(W.begin(), W.end(), x.begin(), 0.0) >= 0) ? "lightcyan" : "pink";
-            test_points.push_back(p);
-            test_colors.push_back(c);
-        }
-    }
-}
-
 void LinearModel::trainning()
 {
     // Trainning

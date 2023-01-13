@@ -22,11 +22,12 @@ W = np.random.uniform(-1.0, 1.0, 3)
 test_points = []
 test_colors = []
 for row in range(0, 300):
-  for col in range(0, 300):
-    p = np.array([col / 100, row / 100])
-    c = 'lightcyan' if np.matmul(np.transpose(W), np.array([1.0, *p])) >= 0 else 'pink'
-    test_points.append(p)
-    test_colors.append(c)
+    for col in range(0, 300):
+        p = np.array([col / 100, row / 100])
+        c = 'lightcyan' if np.matmul(np.transpose(
+            W), np.array([1.0, *p])) >= 0 else 'pink'
+        test_points.append(p)
+        test_colors.append(c)
 test_points = np.array(test_points)
 test_colors = np.array(test_colors)
 
@@ -37,4 +38,5 @@ plt.show()
 if __name__ == "__main__":
     # Load lib
     my_lib = cdll.LoadLibrary(PATH_TO_SHARED_LIBRARY)
-    print('test')
+    my_lib.create_array.argtypes = [c_int]
+    my_lib.create_array.restype = POINTER(c_double)
