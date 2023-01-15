@@ -40,7 +40,6 @@ extern "C" float *create_model_linear(int size)
 
 extern "C" float *train_rosenblatt_linear(float *W, int W_size, float *X, float *Y, int count, float step, int X_flatten_size)
 {
-    float *W_modif = new float[(W_size - 1)];
     // cout << "x_SIZE :" << X_flatten_size << endl;
     // cout << "W_SIZE :" << W_size << endl;
 
@@ -50,7 +49,7 @@ extern "C" float *train_rosenblatt_linear(float *W, int W_size, float *X, float 
         float yk = Y[k];
         // cout << "k :" << k << endl; //pas de pb ici
 
-        float *Xk = new float[X_flatten_size / (W_size - 1)];
+        float *Xk = new float[W_size];
         Xk[0] = 1;
         for (int i = 0; i < (W_size - 1); i++)
         {

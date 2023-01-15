@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 from ctypes import *
+import time
 
 PATH_TO_SHARED_LIBRARY = "MachineLearningLib/x64/Debug/MachineLearningLib.dll"
 
@@ -134,22 +135,24 @@ def Cross_test(lib):
     
 def Linear_Multiple_3_test(lib):
     X = np.random.random((500, 2)) * 2.0 - 1.0
-    X_arr = X.tolist()
     Y = np.array([[1, 0, 0] if -p[0] - p[1] - 0.5 > 0 and p[1] < 0 and p[0] - p[1] - 0.5 < 0 else 
-              [0, 1, 0] if -p[0] - p[1] - 0.5 < 0 and p[1] > 0 and p[0] - p[1] - 0.5 < 0 else 
-              [0, 0, 1] if -p[0] - p[1] - 0.5 < 0 and p[1] < 0 and p[0] - p[1] - 0.5 > 0 else 
-              [0, 0, 0]for p in X])
-
+                  [0, 1, 0] if -p[0] - p[1] - 0.5 < 0 and p[1] > 0 and p[0] - p[1] - 0.5 < 0 else
+                  [0, 0, 1] if -p[0] - p[1] - 0.5 < 0 and p[1] < 0 and p[0] - p[1] - 0.5 > 0 else
+                  [0, 0, 0]for p in X])
     X = X[[not np.all(arr == [0, 0, 0]) for arr in Y]]
+    X_arr = X.tolist()
     Y = Y[[not np.all(arr == [0, 0, 0]) for arr in Y]]
 
-    affichage_avant_test(np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][0] == 1, enumerate(X)))))[:,0]
-                       ,np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][0] == 1, enumerate(X)))))[:,1]
-                        ,np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][1] == 1, enumerate(X)))))[:,0]
-                        ,np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][1] == 1, enumerate(X)))))[:,1]
-                        ,np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][2] == 1, enumerate(X)))))[:,0]
-                        ,np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][2] == 1, enumerate(X)))))[:,1]
-                         ,3)
+    print('Y',len(Y))
+    print(len(X))
+
+    # affichage_avant_test(np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][0] == 1, enumerate(X)))))[:,0]
+    #                    ,np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][0] == 1, enumerate(X)))))[:,1]
+    #                     ,np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][1] == 1, enumerate(X)))))[:,0]
+    #                     ,np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][1] == 1, enumerate(X)))))[:,1]
+    #                     ,np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][2] == 1, enumerate(X)))))[:,0]
+    #                     ,np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][2] == 1, enumerate(X)))))[:,1]
+    #                      ,3)
 
     Y1 = np.array([1 if col[0] == 1 else -1 for col in Y])
     Y1_arr = Y1.tolist()
@@ -180,9 +183,9 @@ def Linear_Multiple_3_test(lib):
         W3_transfo.append(W3_ptr[i])
     print('w3', W3_transfo)
 
-    D1 = train_rosenblatt_linear(lib, W1, len(W1_transfo), X_arr, len(X_arr), Y1_arr, len(Y1_arr), 10000, 0.1, len(X_arr))
-    D2 = train_rosenblatt_linear(lib, W2, len(W2_transfo), X_arr, len(X_arr), Y2_arr, len(Y2_arr), 10000, 0.1, len(X_arr))
-    D3 = train_rosenblatt_linear(lib, W3, len(W3_transfo), X_arr, len(X_arr), Y3_arr, len(Y3_arr), 10000, 0.1, len(X_arr))
+    D1 = train_rosenblatt_linear(lib, W1, len(W1_transfo), X_arr, len(X_arr), Y1_arr, len(Y1_arr), 1000, 0.1, len(X_arr))
+    D2 = train_rosenblatt_linear(lib, W2, len(W2_transfo), X_arr, len(X_arr), Y2_arr, len(Y2_arr), 1000, 0.1, len(X_arr))
+    D3 = train_rosenblatt_linear(lib, W3, len(W3_transfo), X_arr, len(X_arr), Y3_arr, len(Y3_arr), 1000, 0.1, len(X_arr))
 
     D1_ptr = cast(D1, POINTER(c_float))
     D1_transfo = []
@@ -208,30 +211,28 @@ def Linear_Multiple_3_test(lib):
     predict1 = []
     predict2 = []
     predict3 = []
+    points = []
 
-    for row in range(50, 300):
-        for col in range(50, 300):
-            p = np.array([col / 100, row / 100])
+    for row in range(-50, 51):
+        for col in range(-50, 51):
+            p = np.array([col / 50, row / 50])
             if np.matmul(np.transpose(D1_transfo_arr), np.array([1.0, *p])) >= 0:
                 predict1.append(1)
             else:
-                predict1.append(0)
+                predict1.append(-1)
 
-    for row in range(50, 300):
-        for col in range(50, 300):
-            p = np.array([col / 100, row / 100])
             if np.matmul(np.transpose(D2_transfo_arr), np.array([1.0, *p])) >= 0:
                 predict2.append(1)
             else:
-                predict2.append(0)
+                predict2.append(-1)
 
-    for row in range(50, 300):
-        for col in range(50, 300):
-            p = np.array([col / 100, row / 100])
             if np.matmul(np.transpose(D3_transfo_arr), np.array([1.0, *p])) >= 0:
                 predict3.append(1)
             else:
-                predict3.append(0)
+                predict3.append(-1)
+            points.append(p)
+
+    points = np.array(points)
 
     predicts = predict1
     for i in range(len(predict1)):
@@ -244,20 +245,20 @@ def Linear_Multiple_3_test(lib):
         if predict1[i] < 0 and predict2[i] < 0 and predict3[i] < 0:
             predicts[i] = 3
 
-    print(len(predicts))
     colors = ['cyan' if c == 0 else ('pink' if c == 1 else ('lime' if c == 2 else 'black')) for c in predicts]
     colors = np.array(colors)
 
-    test_points = []
-    test_colors = []
-    for row in range(50, 300):
-        for col in range(50, 300):
-            p = np.array([col / 100, row / 100])
-            test_points.append(p)
-    test_points = np.array(test_points)
-    test_colors = np.array(test_colors)
+    plt.scatter([p[0] for p in points], [p[1] for p in points], c=colors)
 
-    #plt.scatter(test_points[:, 0], test_points[:, 1], c=colors)
+    plt.scatter(np.array(list(map(lambda elt: elt[1], filter(lambda c: Y[c[0]][0] == 1, enumerate(X)))))[:, 0],
+                np.array(list(map(lambda elt: elt[1], filter(lambda c: Y[c[0]][0] == 1, enumerate(X)))))[:, 1],
+                color='blue')
+    plt.scatter(np.array(list(map(lambda elt: elt[1], filter(lambda c: Y[c[0]][1] == 1, enumerate(X)))))[:, 0],
+                np.array(list(map(lambda elt: elt[1], filter(lambda c: Y[c[0]][1] == 1, enumerate(X)))))[:, 1],
+                color='red')
+    plt.scatter(np.array(list(map(lambda elt: elt[1], filter(lambda c: Y[c[0]][2] == 1, enumerate(X)))))[:, 0],
+                np.array(list(map(lambda elt: elt[1], filter(lambda c: Y[c[0]][2] == 1, enumerate(X)))))[:, 1],
+                color='green')
     plt.show()
     plt.clf()
 
@@ -268,20 +269,130 @@ def Linear_Multiple_3_test(lib):
 
 def Multi_Cross_test(lib):
     X = np.random.random((1000, 2)) * 2.0 - 1.0
-    
+    X_arr = X.tolist()
     Y = np.array([[1, 0, 0] if abs(p[0] % 0.5) <= 0.25
     and abs(p[1] % 0.5) > 0.25 else [0, 1, 0]
     if abs(p[0] % 0.5) > 0.25 and abs(p[1] % 0.5) <= 0.25
     else [0, 0, 1] for p in X])
 
-    affichage_avant_test(np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][0] == 1, enumerate(X)))))[:,0]
-                        ,np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][0] == 1, enumerate(X)))))[:,1]
-                        ,np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][1] == 1, enumerate(X)))))[:,0]
-                        ,np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][1] == 1, enumerate(X)))))[:,1]
-                        ,np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][2] == 1, enumerate(X)))))[:,0]
-                        , np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][2] == 1, enumerate(X)))))[:,1]
-                         ,3)
+    Y1 = np.array([1 if col[0] == 1 else -1 for col in Y])
+    Y1_arr = Y1.tolist()
+    Y2 = np.array([1 if col[1] == 1 else -1 for col in Y])
+    Y2_arr = Y2.tolist()
+    Y3 = np.array([1 if col[2] == 1 else -1 for col in Y])
+    Y3_arr = Y3.tolist()
 
+    # affichage_avant_test(np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][0] == 1, enumerate(X)))))[:,0]
+    #                     ,np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][0] == 1, enumerate(X)))))[:,1]
+    #                     ,np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][1] == 1, enumerate(X)))))[:,0]
+    #                     ,np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][1] == 1, enumerate(X)))))[:,1]
+    #                     ,np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][2] == 1, enumerate(X)))))[:,0]
+    #                     , np.array(list(map(lambda elt : elt[1], filter(lambda c: Y[c[0]][2] == 1, enumerate(X)))))[:,1]
+    #                      ,3)
+
+    size = 2
+    W1 = create_model(lib, size)
+    W1_ptr = cast(W1, POINTER(c_float))
+    W1_transfo = []
+    for i in range(size + 1):
+        W1_transfo.append(W1_ptr[i])
+    print('w1', W1_transfo)
+
+    W2 = create_model(lib, size)
+    W2_ptr = cast(W2, POINTER(c_float))
+    W2_transfo = []
+    for i in range(size + 1):
+        W2_transfo.append(W2_ptr[i])
+    print('w2', W2_transfo)
+
+    W3 = create_model(lib, size)
+    W3_ptr = cast(W3, POINTER(c_float))
+    W3_transfo = []
+    for i in range(size + 1):
+        W3_transfo.append(W3_ptr[i])
+    print('w3', W3_transfo)
+
+    D1 = train_rosenblatt_linear(lib, W1, len(W1_transfo), X_arr, len(X_arr), Y1_arr, len(Y1_arr), 1000, 0.1,
+                                 len(X_arr))
+    D2 = train_rosenblatt_linear(lib, W2, len(W2_transfo), X_arr, len(X_arr), Y2_arr, len(Y2_arr), 1000, 0.1,
+                                 len(X_arr))
+    D3 = train_rosenblatt_linear(lib, W3, len(W3_transfo), X_arr, len(X_arr), Y3_arr, len(Y3_arr), 1000, 0.1,
+                                 len(X_arr))
+
+    D1_ptr = cast(D1, POINTER(c_float))
+    D1_transfo = []
+    for i in range(size + 1):
+        D1_transfo.append(D1_ptr[i])
+    D1_transfo_arr = np.array(D1_transfo)
+    print('D1', D1_transfo_arr)
+
+    D2_ptr = cast(D2, POINTER(c_float))
+    D2_transfo = []
+    for i in range(size + 1):
+        D2_transfo.append(D2_ptr[i])
+    D2_transfo_arr = np.array(D2_transfo)
+    print('D2', D2_transfo_arr)
+
+    D3_ptr = cast(D3, POINTER(c_float))
+    D3_transfo = []
+    for i in range(size + 1):
+        D3_transfo.append(D3_ptr[i])
+    D3_transfo_arr = np.array(D3_transfo)
+    print('D3', D3_transfo_arr)
+
+    predict1 = []
+    predict2 = []
+    predict3 = []
+    points = []
+
+    for row in range(-50, 51):
+        for col in range(-50, 51):
+            p = np.array([col / 50, row / 50])
+            if np.matmul(np.transpose(D1_transfo_arr), np.array([1.0, *p])) >= 0:
+                predict1.append(1)
+            else:
+                predict1.append(-1)
+
+            if np.matmul(np.transpose(D2_transfo_arr), np.array([1.0, *p])) >= 0:
+                predict2.append(1)
+            else:
+                predict2.append(-1)
+
+            if np.matmul(np.transpose(D3_transfo_arr), np.array([1.0, *p])) >= 0:
+                predict3.append(1)
+            else:
+                predict3.append(-1)
+            points.append(p)
+
+    points = np.array(points)
+
+    predicts = predict1
+    for i in range(len(predict1)):
+        if predict1[i] >= 0:
+            predicts[i] = 0
+        if predict2[i] >= 0:
+            predicts[i] = 1
+        if predict3[i] >= 0:
+            predicts[i] = 2
+        if predict1[i] < 0 and predict2[i] < 0 and predict3[i] < 0:
+            predicts[i] = 3
+
+    colors = ['cyan' if c == 0 else ('pink' if c == 1 else ('lime' if c == 2 else 'black')) for c in predicts]
+    colors = np.array(colors)
+
+    plt.scatter([p[0] for p in points], [p[1] for p in points], c=colors)
+
+    plt.scatter(np.array(list(map(lambda elt: elt[1], filter(lambda c: Y[c[0]][0] == 1, enumerate(X)))))[:, 0],
+                np.array(list(map(lambda elt: elt[1], filter(lambda c: Y[c[0]][0] == 1, enumerate(X)))))[:, 1],
+                color='blue')
+    plt.scatter(np.array(list(map(lambda elt: elt[1], filter(lambda c: Y[c[0]][1] == 1, enumerate(X)))))[:, 0],
+                np.array(list(map(lambda elt: elt[1], filter(lambda c: Y[c[0]][1] == 1, enumerate(X)))))[:, 1],
+                color='red')
+    plt.scatter(np.array(list(map(lambda elt: elt[1], filter(lambda c: Y[c[0]][2] == 1, enumerate(X)))))[:, 0],
+                np.array(list(map(lambda elt: elt[1], filter(lambda c: Y[c[0]][2] == 1, enumerate(X)))))[:, 1],
+                color='green')
+    plt.show()
+    plt.clf()
     print("multi cross")
 
 
@@ -342,8 +453,8 @@ def affichage_resultat(model,points,classes,num):
         colors = ['blue' if c == 1 else 'red' for c in classes]
         test_points = []
         test_colors = []
-        for row in range(50, 300):
-            for col in range(50, 300):
+        for row in range(-100, 300):
+            for col in range(-100, 300):
                 p = np.array([col / 100, row / 100])
                 c = 'lightcyan' if np.matmul(np.transpose(model), np.array([1.0, *p])) >= 0 else 'pink'
                 test_points.append(p)
@@ -371,5 +482,5 @@ if __name__ == "__main__":
     #Linear_Multiple_test(lib)
     #XOR_test(lib)
     #Cross_test(lib)
-    Linear_Multiple_3_test(lib)
-    #Multi_Cross_test(lib)
+    #Linear_Multiple_3_test(lib)
+    Multi_Cross_test(lib)
