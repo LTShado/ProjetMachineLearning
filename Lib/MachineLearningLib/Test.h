@@ -33,10 +33,10 @@ extern "C" MACHINELEARNINGLIB_API int test();
 
 // PMC Method
 
-extern "C" MACHINELEARNINGLIB_API float *createPMC(int *npl, int sizeNpl, int L, int *d, int **X, int ***deltas);
+extern "C" MACHINELEARNINGLIB_API void createPMC(int *npl, int *d, float **X, float **deltas, float ***W);
 
-extern "C" MACHINELEARNINGLIB_API void propagate(float *inputs, bool isClassification, int L, int *d, int dSize, int **X, float ***W);
+extern "C" MACHINELEARNINGLIB_API void propagate(float *inputs, bool isClassification, int L, int *d, int **X, float ***W);
 
-extern "C" MACHINELEARNINGLIB_API float *predict(float *inputs, bool isClassification, int L, int *d, int dSize, int **X, float ***W);
+extern "C" MACHINELEARNINGLIB_API float *predict(float *inputs, bool isClassification, int L, int *d, int **X, float ***W);
 
-extern "C" MACHINELEARNINGLIB_API void train(float **xTrain, float **yTrain, bool isClassification, float alpha, int nbIter);
+extern "C" MACHINELEARNINGLIB_API void train(float **xTrain, float **yTrain, bool isClassification, float alpha, int nbIter, int L, int *d, int **X, int **deltas, float ***W);

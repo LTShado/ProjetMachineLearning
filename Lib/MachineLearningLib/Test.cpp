@@ -105,11 +105,13 @@ extern "C" int test()
 
 // PMC method
 
-extern "C" float *createPMC(int *npl, int *d, float **X, float **deltas, float ***W)
+// Init datas from pointers
+extern "C" void createPMC(int *npl, int *d, float **X, float **deltas, float ***W)
 {
     int sizeNpl = sizeof(npl) / sizeof(npl[0]);
     int L = sizeNpl - 1;
 
+    // CPY npl in d
     for (int i = 0; i < sizeNpl; i++)
         d[i] = npl[i];
 
