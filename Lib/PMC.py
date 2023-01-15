@@ -6,14 +6,21 @@ from ctypes import *
 PATH_TO_SHARED_LIBRARY = "E:/Projects/Unity Projects/ProjetMachineLearning/Lib/MachineLearningLib/x64/Debug/MachineLearningLib.dll"
 
 
-def test(lib, number):
-    lib.test.argtypes = [POINTER(c_int)]
+def test(lib):
+    lib.test.argtypes = []
     lib.test.restype = c_int
-    return lib.test(number)
+    return lib.test()
 
 
-def create_pmc(lib, npl, d, X, W, deltas):
-    print("Init PMC")
+def create_pmc(lib, npl):
+
+    npl = (c_int * len(npl))(* npl)
+    d = npl.copy()
+    d = (c_int * len(d))(* d)
+
+    W = []
+    X = []
+    deltas = []
 
     lib.createPMC.argtypes = [
         POINTER(c_int),
@@ -30,15 +37,5 @@ def create_pmc(lib, npl, d, X, W, deltas):
 if __name__ == "__main__":
     # load lib
     lib = cdll.LoadLibrary(PATH_TO_SHARED_LIBRARY)
-
-    # Init data
-    npl = [2, 1]
-    W = []
-    d = []
-    X = []
-    deltas = []
-
-    # cast data in c_type
-
     # call function
-    create_pmc(lib, npl, W, d, X, deltas)
+    create_pmc(lib, [2, 1])
