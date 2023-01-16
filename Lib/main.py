@@ -478,9 +478,9 @@ if __name__ == "__main__":
     lib = cdll.LoadLibrary(PATH_TO_SHARED_LIBRARY)
     
     #Cas_Test
-    #Linear_Simple_test(lib)
-    #Linear_Multiple_test(lib)
-    #XOR_test(lib)
-    #Cross_test(lib)
-    #Linear_Multiple_3_test(lib)
+    Linear_Simple_test(lib)
+    Linear_Multiple_test(lib)
+    XOR_test(lib)
+    Cross_test(lib)
+    Linear_Multiple_3_test(lib)
     Multi_Cross_test(lib)
