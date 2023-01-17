@@ -1,9 +1,10 @@
-import numpy
-import math
+import numpy as np
 import matplotlib.pyplot as plt
+import math
 from ctypes import *
+import time
 
-PATH_TO_SHARED_LIBRARY = "E:/Projects/Unity Projects/ProjetMachineLearning/Lib/MachineLearningLib/x64/Debug/MachineLearningLib.dll"
+PATH_TO_SHARED_LIBRARY = "Lib/MachineLearningLib/x64/Debug/MachineLearningLib.dll"
 
 
 def test(lib):
@@ -14,20 +15,19 @@ def test(lib):
 
 def create_pmc(lib, npl):
 
-    npl = (c_int * len(npl))(* npl)
     d = npl.copy()
+    npl = (c_int * len(npl))(* npl)
     d = (c_int * len(d))(* d)
-
-    W = []
-    X = []
-    deltas = []
+    W = (c_int * len(W))(* W)
+    X = (c_float * len(X))(* X)
+    deltas = (c_float * len(deltas))(* deltas)
 
     lib.createPMC.argtypes = [
         POINTER(c_int),
         POINTER(c_int),
-        POINTER(POINTER(c_float)),
-        POINTER(POINTER(c_float)),
-        POINTER(POINTER(POINTER(c_float)))
+        POINTER(c_float),
+        POINTER(c_float),
+        POINTER(c_float)
     ]
 
     lib.createPMC.restype = None
