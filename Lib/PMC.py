@@ -22,7 +22,7 @@ def create_model_pmc(lib, npl):
     deltas = (c_float * (sizeNpl*maxN))()
     W = (c_float * (sizeNpl*maxN*maxN))()
 
-    lib.createPMC.argtypes = [
+    lib.createModelPMC.argtypes = [
         POINTER(c_int), #npl
         c_int, #sizeNpl
         c_int, #maxN
@@ -30,8 +30,8 @@ def create_model_pmc(lib, npl):
         POINTER(c_float), #deltas
         POINTER(c_float) #W
     ]
-    lib.createPMC.restype = None
-    lib.createPMC(d, sizeNpl, maxN, X, deltas, W)
+    lib.createModelPMC.restype = None
+    lib.createModelPMC(d, sizeNpl, maxN, X, deltas, W)
     resultArray = {"d":d, "sizeNpl":sizeNpl, "maxN":maxN, "X":X, "deltas":deltas, "W":W}
     return resultArray
 

@@ -105,7 +105,7 @@ extern "C" int test()
 // PMC method
 
 // Init datas from pointers
-extern "C" void create_model_pmc(int* npl, int sizeNpl, int maxN, float* X, float* deltas, float* W)
+extern "C" void createModelPMC(int* npl, int sizeNpl, int maxN, float* X, float* deltas, float* W)
 {
     default_random_engine generator;
     uniform_real_distribution<float> distribution(-1, 1);

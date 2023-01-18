@@ -33,7 +33,7 @@ extern "C" MACHINELEARNINGLIB_API int test();
 
 // PMC Method
 
-extern "C" MACHINELEARNINGLIB_API void create_model_pmc(int* npl, int sizeNpl, int maxN, float* X, float* deltas, float* W);
+extern "C" MACHINELEARNINGLIB_API void createModelPMC(int* npl, int sizeNpl, int maxN, float* X, float* deltas, float* W);
 
 void propagate(float* inputs, bool isClassification, int* d, int sizeNpl, int L, int maxN, float* X, float* W);
 
