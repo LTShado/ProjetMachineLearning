@@ -35,8 +35,8 @@ extern "C" MACHINELEARNINGLIB_API int test();
 
 extern "C" MACHINELEARNINGLIB_API void create_model_pmc(int* npl, int sizeNpl, int maxN, float* X, float* deltas, float* W);
 
-extern "C" MACHINELEARNINGLIB_API void propagate(float *inputs, bool isClassification, int L, int *d, int **X, float ***W);
+void propagate(float* inputs, bool isClassification, int* d, int sizeNpl, int L, int maxN, float* X, float* W);
 
-extern "C" MACHINELEARNINGLIB_API float* predict(float *inputs, bool isClassification, int L, int *d, int **X, float ***W);
+extern "C" MACHINELEARNINGLIB_API float* predict(float* inputs, bool isClassification, int* d, int sizeNpl, int maxN, float* X, float* W);
 
-extern "C" MACHINELEARNINGLIB_API void train(float **xTrain, float **yTrain, bool isClassification, float alpha, int nbIter, int L, int *d, int **X, int **deltas, float ***W);
+extern "C" MACHINELEARNINGLIB_API void train(float* xTrain, int sizeXTrain, float* yTrain, int sizeYTrain, bool isClassification, float alpha, int nbIter, int* d, int sizeNpl, int maxN, float* X, float* deltas, float* W);

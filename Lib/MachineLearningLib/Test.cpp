@@ -142,75 +142,79 @@ extern "C" void create_model_pmc(int* npl, int sizeNpl, int maxN, float* X, floa
 
 }
 
-extern "C" void propagate(float *inputs, bool isClassification, int L, int *d, int **X, float ***W)
+void propagate(float *inputs, bool isClassification, int *d, int sizeNpl, int L, int maxN, float *X, float *W)
 {
-    int dSize = sizeof(d) / sizeof(d[0]);
-
     for (int j = 1; j < d[0] + 1; j++)
-        X[0][j] = inputs[j - 1];
+        X[0*maxN + j] = inputs[j - 1];
 
-    for (int l = 1; l < dSize; l++)
+    for (int l = 1; l < sizeNpl; l++)
     {
         for (int j = 1; j < d[l] + 1; j++)
         {
-            int total = 0;
+            float total = 0.f;
             for (int i = 0; i < d[l - 1] + 1; i++)
-                total += W[l][i][j] * X[l - 1][i];
+                total += W[l*maxN*maxN +i*maxN +j] * X[(l-1)*maxN + i];
 
-            X[l][j] = total;
+            X[l*maxN + j] = total;
             if (isClassification || l < L)
-                X[l][j] = tanh(total);
+                X[l*maxN + j] = tanh(total);
         }
     }
 }
 
-extern "C" float* predict(float *inputs, bool isClassification, int L, int *d, int **X, float ***W)
+extern "C" float* predict(float *inputs, bool isClassification, int* d, int sizeNpl, int maxN, float* X, float* W)
 {
-    float *new_arr = new float;
-    int size = sizeof(X[L]) / sizeof(X[L][0]);
-    propagate(inputs, isClassification, L, d, X, W);
-    memcpy(new_arr, &X[L][1], (size - 1) * sizeof(float));
+    int L = sizeNpl-1;
+    float* new_arr = new float[d[L]];
+
+    propagate(inputs, isClassification, d, sizeNpl, L, maxN, X, W);
+    memcpy(new_arr, &X[L*maxN + 1], d[L] * sizeof(float));
     return new_arr;
 }
 
-extern "C" void train(float **xTrain, float **yTrain, bool isClassification, float alpha, int nbIter, int L, int *d, int **X, int **deltas, float ***W)
+
+/*
+xTrain, yTrain: array<array of size d[O]>
+*/
+extern "C" void train(float *xTrain, int sizeXTrain, float *yTrain, int sizeYTrain, bool isClassification, float alpha, int nbIter, int* d, int sizeNpl, int maxN, float* X, float* deltas, float* W)
 {
-    int dSize = sizeof(d) / sizeof(d[0]);
-    int xTrainSize = sizeof(xTrain) / sizeof(xTrain[0]);
-    uniform_int_distribution<int> distribution(0, xTrainSize - 1);
-    mt19937 generator;
+    default_random_engine generator;
+    uniform_int_distribution<int> distribution(0, sizeXTrain);
+    
+    int L = sizeNpl - 1;
+    
 
     for (int it = 0; it < nbIter; ++it)
     {
         int k = distribution(generator);
-        float *Xk = xTrain[k];
-        float *Yk = yTrain[k];
+        float* Xk = &xTrain[k];
+        float* Yk = &yTrain[k];
 
-        propagate(Xk, isClassification, L, d, X, W);
-        for (int j = 1; j <= d[L]; ++j)
+        propagate(Xk, isClassification, d, sizeNpl, L, maxN, X, W);
+        for (int j = 1; j < d[L]+1; ++j)
         {
-            deltas[L][j] = X[L][j] - Yk[j - 1];
+            deltas[L*maxN + j] = X[L*maxN + j] - Yk[j - 1];
             if (isClassification)
-                deltas[L][j] = deltas[L][j] * (1 - X[L][j] * X[L][j]);
+                deltas[L*maxN + j] = deltas[L*maxN + j] * (1 - (X[L*maxN + j] * X[L*maxN + j]));
         }
 
-        for (int l = L - 1; l >= 1; --l)
+        for (int l = sizeNpl-1 ; l >= 2; --l)
         {
-            for (int i = 1; i <= d[l - 1]; ++i)
+            for (int i = 1; i < d[l - 1]+1; ++i)
             {
-                double total = 0.0;
-                for (int j = 1; j <= d[l]; ++j)
-                    total += W[l][i][j] * deltas[l][j];
-                deltas[l - 1][i] = (1 - X[l - 1][i] * X[l - 1][i]) * total;
+                float total = 0.f;
+                for (int j = 1; j < d[l]+1; ++j)
+                    total += W[l*maxN*maxN + i*maxN + j] * deltas[l*maxN + j];
+                deltas[(l - 1)*maxN + i] = (1 - (X[(l - 1)*maxN + i] * X[(l - 1)*maxN + i])) * total;
             }
         }
 
-        for (int l = 1; l < dSize; ++l)
+        for (int l = 1; l < sizeNpl; ++l)
         {
-            for (int i = 0; i <= d[l - 1]; ++i)
+            for (int i = 0; i < d[l - 1]+1; ++i)
             {
                 for (int j = 1; j <= d[l]; ++j)
-                    W[l][i][j] += -alpha * X[l - 1][i] * deltas[l][j];
+                    W[l*maxN*maxN + i*maxN + j] += -alpha * X[(l - 1)*maxN + i] * deltas[l*maxN + j];
             }
         }
     }
