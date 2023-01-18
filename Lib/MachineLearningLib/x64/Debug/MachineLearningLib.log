@@ -1,13 +1,10 @@
 ﻿  Test.cpp
-E:\Projects\Unity Projects\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(21,18): warning C4244: '=' : conversion de 'int' en 'float', perte possible de données
-E:\Projects\Unity Projects\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(101,11): warning C4244: 'initialisation' : conversion de 'float' en 'int', perte possible de données
-E:\Projects\Unity Projects\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(129,31): warning C4244: 'initialisation' : conversion de 'time_t' en 'unsigned int', perte possible de données
-E:\Projects\Unity Projects\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(131,25): warning C4244: 'initialisation' : conversion de 'double' en 'float', perte possible de données
-E:\Projects\Unity Projects\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(145,25): warning C4244: '=' : conversion de 'int' en 'float', perte possible de données
-E:\Projects\Unity Projects\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(155,31): warning C4244: '=' : conversion de 'float' en 'int', perte possible de données
-E:\Projects\Unity Projects\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(163,37): warning C4244: '+=' : conversion de 'float' en 'int', perte possible de données
-E:\Projects\Unity Projects\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(167,31): warning C4244: '=' : conversion de 'double' en 'int', perte possible de données
-E:\Projects\Unity Projects\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(197,36): warning C4244: '=' : conversion de 'float' en 'int', perte possible de données
-E:\Projects\Unity Projects\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(209,68): warning C4244: '=' : conversion de 'double' en 'int', perte possible de données
-     Création de la bibliothèque E:\Projects\Unity Projects\ProjetMachineLearning\Lib\MachineLearningLib\x64\Debug\MachineLearningLib.lib et de l'objet E:\Projects\Unity Projects\ProjetMachineLearning\Lib\MachineLearningLib\x64\Debug\MachineLearningLib.exp
-  MachineLearningLib.vcxproj -> E:\Projects\Unity Projects\ProjetMachineLearning\Lib\MachineLearningLib\x64\Debug\MachineLearningLib.dll
+C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(21,18): warning C4244: '=' : conversion de 'int' en 'float', perte possible de données
+C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(101,11): warning C4244: 'initialisation' : conversion de 'float' en 'int', perte possible de données
+C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(150,31): warning C4244: '=' : conversion de 'float' en 'int', perte possible de données
+C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(158,50): warning C4244: '+=' : conversion de 'float' en 'int', perte possible de données
+C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(162,31): warning C4244: '=' : conversion de 'double' en 'int', perte possible de données
+C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(192,36): warning C4244: '=' : conversion de 'float' en 'int', perte possible de données
+C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(204,68): warning C4244: '=' : conversion de 'double' en 'int', perte possible de données
+     Création de la bibliothèque C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\x64\Debug\MachineLearningLib.lib et de l'objet C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\x64\Debug\MachineLearningLib.exp
+  MachineLearningLib.vcxproj -> C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\x64\Debug\MachineLearningLib.dll

@@ -14,7 +14,7 @@ void destroy_array(float *arr, int arr_size)
     delete[] (arr);
 }
 
-float *create_array(int arr_size)
+float* create_array(int arr_size)
 {
     auto tab = new float[arr_size];
     for (auto i = 0; i < arr_size; ++i)
@@ -24,7 +24,7 @@ float *create_array(int arr_size)
 
 // Linear Model
 
-extern "C" float *create_model_linear(int size)
+extern "C" float* create_model_linear(int size)
 {
     float *model = new float[size];
 
@@ -38,7 +38,7 @@ extern "C" float *create_model_linear(int size)
     return model;
 }
 
-extern "C" float *train_rosenblatt_linear(float *W, int W_size, float *X, float *Y, int count, float step, int X_flatten_size)
+extern "C" float* train_rosenblatt_linear(float *W, int W_size, float *X, float *Y, int count, float step, int X_flatten_size)
 {
     // cout << "x_SIZE :" << X_flatten_size << endl;
     // cout << "W_SIZE :" << W_size << endl;
@@ -105,31 +105,27 @@ extern "C" int test()
 // PMC method
 
 // Init datas from pointers
-extern "C" void createPMC(int *npl, int *d, float **X, float **deltas, float ***W)
+extern "C" void create_model_pmc(int* npl, int sizeNpl, int maxN, float* X, float* deltas, float* W)
 {
-    int sizeNpl = sizeof(npl) / sizeof(npl[0]);
-    int L = sizeNpl - 1;
-
-    // CPY npl in d
-    for (int i = 0; i < sizeNpl; i++)
-        d[i] = npl[i];
-
+    default_random_engine generator;
+    uniform_real_distribution<float> distribution(-1, 1);
+    
+    // Alocate Arrays
+    //W = new float[sizeNpl * maxN * maxN];
+    //X = new float[sizeNpl*maxN];
+    //deltas = new float[sizeNpl*maxN];
+    
     // Init W:
+    
     for (int l = 0; l < sizeNpl; l++)
     {
-        W[l] = new float *;
         if (l == 0)
             continue;
-        for (int i = 0; i < d[l - 1] + 1; i++)
+        for (int i = 0; i < npl[l - 1] + 1; i++)
         {
-            W[l][i] = new float;
-            for (int j = 0; j < d[l] + 1; j++)
+            for (int j = 0; j < npl[l] + 1; j++)
             {
-                uniform_real_distribution<double> distribution(-1, 1);
-                unsigned seed = time(nullptr);
-                default_random_engine generator(seed);
-                float r = distribution(generator);
-                W[l][i][j] = j == 0 ? 1 : r;
+                W[l*maxN*maxN + i*maxN + j] = j == 0 ? 0.f : distribution(generator);
             }
         }
     }
@@ -137,14 +133,13 @@ extern "C" void createPMC(int *npl, int *d, float **X, float **deltas, float ***
     // Init X and deltas:
     for (int l = 0; l < sizeNpl; l++)
     {
-        X[l] = new float;
-        deltas[l] = new float;
-        for (int j = 0; j < d[l] + 1; j++)
+        for (int j = 0; j < npl[l] + 1; j++)
         {
-            deltas[l][j] = 0.f;
-            X[l][j] = j == 0 ? 1 : 0;
+            deltas[l*maxN + j] = 0.f;
+            X[l*maxN + j] = j == 0 ? 1.0f : 0.f;
         }
     }
+
 }
 
 extern "C" void propagate(float *inputs, bool isClassification, int L, int *d, int **X, float ***W)
@@ -169,7 +164,7 @@ extern "C" void propagate(float *inputs, bool isClassification, int L, int *d, i
     }
 }
 
-extern "C" float *predict(float *inputs, bool isClassification, int L, int *d, int **X, float ***W)
+extern "C" float* predict(float *inputs, bool isClassification, int L, int *d, int **X, float ***W)
 {
     float *new_arr = new float;
     int size = sizeof(X[L]) / sizeof(X[L][0]);

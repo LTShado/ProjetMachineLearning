@@ -1,4 +1,0 @@
-﻿  pch.cpp
-  dllmain.cpp
-C:\Users\Admin\OneDrive\Bureau\Cours\MachineLearning\ProjetMachineLearning\Lib\MachineLearningLib\dllmain.cpp(27,2): warning C4091: 'static ' : ignoré à gauche de 'TestReturn' quand aucune variable n'est déclarée
-  MachineLearningLib.vcxproj -> C:\Users\Admin\OneDrive\Bureau\Cours\MachineLearning\ProjetMachineLearning\Lib\MachineLearningLib\Debug\MachineLearningLib.dll
