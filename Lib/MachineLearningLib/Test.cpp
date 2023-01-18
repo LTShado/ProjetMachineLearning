@@ -142,7 +142,7 @@ extern "C" void createModelPMC(int* npl, int sizeNpl, int maxN, float* X, float*
 
 }
 
-void propagate(float *inputs, bool isClassification, int *d, int sizeNpl, int L, int maxN, float *X, float *W)
+void propagatePMC(float *inputs, bool isClassification, int *d, int sizeNpl, int L, int maxN, float *X, float *W)
 {
     for (int j = 1; j < d[0] + 1; j++)
         X[0*maxN + j] = inputs[j - 1];
@@ -162,12 +162,12 @@ void propagate(float *inputs, bool isClassification, int *d, int sizeNpl, int L,
     }
 }
 
-extern "C" float* predict(float *inputs, bool isClassification, int* d, int sizeNpl, int maxN, float* X, float* W)
+extern "C" float* predictPMC(float *inputs, bool isClassification, int* d, int sizeNpl, int maxN, float* X, float* W)
 {
     int L = sizeNpl-1;
     float* new_arr = new float[d[L]];
 
-    propagate(inputs, isClassification, d, sizeNpl, L, maxN, X, W);
+    propagatePMC(inputs, isClassification, d, sizeNpl, L, maxN, X, W);
     memcpy(new_arr, &X[L*maxN + 1], d[L] * sizeof(float));
     return new_arr;
 }
@@ -176,10 +176,10 @@ extern "C" float* predict(float *inputs, bool isClassification, int* d, int size
 /*
 xTrain, yTrain: array<array of size d[O]>
 */
-extern "C" void train(float *xTrain, int sizeXTrain, float *yTrain, int sizeYTrain, bool isClassification, float alpha, int nbIter, int* d, int sizeNpl, int maxN, float* X, float* deltas, float* W)
+extern "C" void trainPMC(int sizeT, float *xTrain, int sizeDataXTrain, float *yTrain, int sizeDataYTrain, bool isClassification, float alpha, int nbIter, int* d, int sizeNpl, int maxN, float* X, float* deltas, float* W)
 {
     default_random_engine generator;
-    uniform_int_distribution<int> distribution(0, sizeXTrain);
+    uniform_int_distribution<int> distribution(0, sizeT);
     
     int L = sizeNpl - 1;
     
@@ -187,10 +187,10 @@ extern "C" void train(float *xTrain, int sizeXTrain, float *yTrain, int sizeYTra
     for (int it = 0; it < nbIter; ++it)
     {
         int k = distribution(generator);
-        float* Xk = &xTrain[k];
-        float* Yk = &yTrain[k];
+        float* Xk = &xTrain[k*sizeDataXTrain];
+        float* Yk = &yTrain[k*sizeDataYTrain];
 
-        propagate(Xk, isClassification, d, sizeNpl, L, maxN, X, W);
+        propagatePMC(Xk, isClassification, d, sizeNpl, L, maxN, X, W);
         for (int j = 1; j < d[L]+1; ++j)
         {
             deltas[L*maxN + j] = X[L*maxN + j] - Yk[j - 1];

@@ -1,5 +1,1 @@
-﻿  Test.cpp
-C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(21,18): warning C4244: '=' : conversion de 'int' en 'float', perte possible de données
-C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(101,11): warning C4244: 'initialisation' : conversion de 'float' en 'int', perte possible de données
-     Création de la bibliothèque C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\x64\Debug\MachineLearningLib.lib et de l'objet C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\x64\Debug\MachineLearningLib.exp
-  MachineLearningLib.vcxproj -> C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\x64\Debug\MachineLearningLib.dll
+﻿  MachineLearningLib.vcxproj -> C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\x64\Debug\MachineLearningLib.dll
