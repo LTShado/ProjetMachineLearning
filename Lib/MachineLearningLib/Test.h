@@ -27,7 +27,7 @@ extern "C" MACHINELEARNINGLIB_API float* create_model_linear(int size);
 
 extern "C" MACHINELEARNINGLIB_API float* train_rosenblatt_linear(float *W, int W_size, float *X, float *Y, int count, float step, int size);
 
-extern "C" MACHINELEARNINGLIB_API float* train_regression_linear(float* W, int W_size, float* X, float* Y, int count, float step, int X_flatten_size);
+extern "C" MACHINELEARNINGLIB_API float* train_regression_linear(float* W, int W_size, float* X, float* Y, int count, float step, int X_flatten_size, int dim);
 
 float** TransposeMat(float** mat, int col, int row);
 float** DotMat(float** mat1, int col1, int row1, float** mat2, int col2, int row2);

@@ -88,10 +88,15 @@ extern "C" float* train_rosenblatt_linear(float *W, int W_size, float *X, float 
     return W;
 }
 
-extern "C" float* train_regression_linear(float* W, int W_size, float* X, float* Y, int count, float step, int X_flatten_size) {
+extern "C" float* train_regression_linear(float* W, int W_size, float* X, float* Y, int count, float step, int X_flatten_size, int dim) {
     
-
-    int col = X_flatten_size / (W_size - 1);
+    int col;
+    if (dim == 1) {
+        col = X_flatten_size;
+    }
+    if (dim == 2) {
+        col = X_flatten_size / (W_size-1);
+    }
     int row = (W_size - 1);
 
     float** x = new float*[col];
@@ -122,8 +127,7 @@ extern "C" float* train_regression_linear(float* W, int W_size, float* X, float*
 }
 
 float** InverseMat(float** mat, int col, int row) {
-
-    float** inv = new float* [col];
+    /*float** inv = new float* [col];
     for (int i = 0; i < col; i++) {
         inv[i] = new float[row];
     }
@@ -146,33 +150,50 @@ float** InverseMat(float** mat, int col, int row) {
         cout << endl;
     }
 
-    int l = 0;
-    float lval = 0;
-    for (int k = 0; k < col; k++) {
-        lval = mat[k][k];
-        for (l = 0; l < col; l++) {
-            mat[k][l] /= lval;
-            inv[k][l] /= lval;
-        }
-        for (int m = 0; m < col; m++) {
-            lval = mat[m][k];
-            for (int n = 0; n < col; n++) {
-                if (m == k) {
-                    break;
-                }
-                mat[m][n] -= mat[k][l] * lval;
-                inv[m][n] -= inv[k][l] * lval;
-            }
-        }
-    }
-    cout << " inv " << endl;
+    cout << "mat " << endl;
     for (int i = 0; i < col; i++) {
         for (int j = 0; j < row; j++) {
-            cout << " " << inv[i][j];
+            cout << " " << mat[i][j];
         }
         cout << endl;
     }
-    cout << " mat " << endl;
+
+    for (int i = 0; i < col; i++)
+    {
+        for (int j = 0; j < col; j++)
+        {
+            if (i == j)
+            {
+                mat[i][j + col] = 1;
+            }
+            else
+            {
+                mat[i][j + col] = 0;
+            }
+        }
+    }
+
+    cout << "mat " << endl;
+    for (int i = 0; i < col; i++) {
+        for (int j = 0; j < row; j++) {
+            cout << " " << mat[i][j];
+        }
+        cout << endl;
+    }*/
+
+    int order = col;
+    cout << "col " << col << endl;
+    float temp;
+    float** inv = new float* [20];
+    for (int i = 0; i < 20; i++)
+        inv[i] = new float[20];
+
+    for (int i = 0; i < order; i++) {
+        for (int j = 0; j < 2 * order; j++) {
+            inv[i][j] = 0;
+        }
+    }
+    cout << "mat " << endl;
     for (int i = 0; i < col; i++) {
         for (int j = 0; j < row; j++) {
             cout << " " << mat[i][j];
@@ -181,32 +202,71 @@ float** InverseMat(float** mat, int col, int row) {
     }
 
 
+    /*inv[0][0] = 6; inv[0][1] = 9; inv[0][2] = 5;
+    inv[1][0] = 8; inv[1][1] = 3; inv[1][2] = 2;
+    inv[2][0] = 1; inv[2][1] = 4; inv[2][2] = 7;*/
 
-    float d = 0;
-
-    /*for (int i = 0; i < 3; i++) {
-        d = d + (mat[0][i] * (mat[1][(i + 1) % 3] * mat[2][(i + 2) % 3] - mat[1][(i + 2) % 3] * mat[2][(i + 1) % 3]));
+    cout << "mat " << endl;
+    for (int i = 0; i < col; i++) {
+        for (int j = 0; j < row; j++) {
+            cout << " " << mat[i][j];
+            inv[i][j] = mat[i][j];
+        }
+        cout << endl;
     }
-    cout<<"d " << d;
-    if (d > 0)
-    {
-        cout << "\nInverse of the matrix is: \n";
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++)
-                std::cout << ((mat[(j + 1) % 3][(i + 1) % 3] * mat[(j + 2) % 3][(i + 2) % 3]) - (mat[(j + 1) % 3][(i + 2) % 3] * mat[(j + 2) % 3][(i + 1) % 3])) / d << "\t";
-            std::cout << "\n";
+
+    for (int i = 0; i < order; i++) {
+        for (int j = 0; j < 2 * order; j++) {
+            if (j == (i + order))
+                inv[i][j] = 1;
         }
     }
-    else std::cout << "Inverse does'nt exist for this matrix";*/
+    cout << "matinvtest " << endl;
+    for (int i = 0; i < order; i++) {
+        for (int j = 0; j < order*2; j++) {
+            cout << " " << inv[i][j];
+        }
+        cout << endl;
+    }
+    for (int i = order - 1; i > 0; i--) {
+        if (inv[i - 1][0] < inv[i][0]) {
+            float* temp = inv[i];
+            inv[i] = inv[i - 1];
+            inv[i - 1] = temp;
+        }
+    }
+    for (int i = 0; i < order; i++) {
+        for (int j = 0; j < order; j++) {
+            if (j != i) {
+                temp = inv[j][i] / inv[i][i];
+                for (int k = 0; k < 2 * order; k++) {
+                    inv[j][k] -= inv[i][k] * temp;
+                }
+            }
+        }
+    }
+    for (int i = 0; i < order; i++) {
+        temp = inv[i][i];
+        for (int j = 0; j < 2 * order; j++) {
+            inv[i][j] = inv[i][j] / temp;
+        }
+    }
 
-    return mat;
+    cout << "matinvtest " << endl;
+    for (int i = 0; i < order; i++) {
+        for (int j = order; j < order *2; j++) {
+            printf("%.3f\t", inv[i][j]);
+        }
+        cout << endl;
+    }
+
+
+    return inv;
 }
 
 float** DotMat(float** mat1, int col1, int row1, float** mat2, int col2, int row2) {
 
 
-    cout << "row1 " << row1 << " row2 " << row2 << endl;
-    cout << "col1 " << col1 << " col2 " << col2 << endl;
     float** mat_dot = new float* [col1];
     for (int i = 0; i < col1; i++) {
         mat_dot[i] = new float[row2];
@@ -239,11 +299,12 @@ float** DotMat(float** mat1, int col1, int row1, float** mat2, int col2, int row
             cout << "Mat2 " << mat2[i][j] << endl;
         }
     }*/
-
+    cout << "mat dot" << endl;
     for (int i = 0; i < col1; i++) {
         for (int j = 0; j < row2; j++) {
-            cout << "i " << i << " j " << j << " value " << mat_dot[i][j] << endl;
+            cout << " " << mat_dot[i][j];
         }
+        cout << endl;
     }
 
     return mat_dot;
@@ -251,6 +312,13 @@ float** DotMat(float** mat1, int col1, int row1, float** mat2, int col2, int row
 
 float** TransposeMat(float** mat, int col, int row) {
 
+    cout << "mat before transpose " << endl;
+    for (int i = 0; i < col; i++) {
+        for (int j = 0; j < row; j++) {
+            cout << " " << mat[i][j];
+        }
+        cout << endl;
+    }
     float** mat_t = new float*[row];
     for (int i = 0; i < row; i++) {
         mat_t[i] = new float[col];
@@ -262,11 +330,13 @@ float** TransposeMat(float** mat, int col, int row) {
             mat_t[i][j] = mat[j][i];
         }
     }
-    /*for (int i = 0; i < row; i++) {
+    cout << "mat transpose " << endl;
+    for (int i = 0; i < row; i++) {
         for (int j = 0; j < col; j++) {
-            cout << "i " << i << " j " << j << " value " << mat_t[i][j] << endl;
+            cout << " " << mat_t[i][j];
         }
-    }*/
+        cout << endl;
+    }
     return mat_t;
 }
 

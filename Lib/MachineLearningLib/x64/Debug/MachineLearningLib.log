@@ -1,4 +1,4 @@
 ﻿  Test.cpp
 C:\Users\Admin\OneDrive\Bureau\Cours\MachineLearning\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(21,18): warning C4244: '=' : conversion de 'int' en 'float', perte possible de données
-C:\Users\Admin\OneDrive\Bureau\Cours\MachineLearning\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(285,11): warning C4244: 'initialisation' : conversion de 'float' en 'int', perte possible de données
+C:\Users\Admin\OneDrive\Bureau\Cours\MachineLearning\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(354,11): warning C4244: 'initialisation' : conversion de 'float' en 'int', perte possible de données
   MachineLearningLib.vcxproj -> C:\Users\Admin\OneDrive\Bureau\Cours\MachineLearning\ProjetMachineLearning\Lib\MachineLearningLib\x64\Debug\MachineLearningLib.dll
