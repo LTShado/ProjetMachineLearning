@@ -162,7 +162,7 @@ extern "C" float* train_regression_linear(float* W, int W_size, float* X, float*
     }
     //W= (Inverse(transpose(X)*X)*transpose(X))*Y
 
-    DotMatDouble(xtx_inv, col, col, xt, row, col);
+   // DotMatDouble(xtx_inv, col, col, xt, row, col);
 
     DotMatSimple(xtx_inv, col, col, Y, Y_size);
 
