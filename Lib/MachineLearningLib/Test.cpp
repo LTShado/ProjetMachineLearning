@@ -88,6 +88,397 @@ extern "C" float* train_rosenblatt_linear(float *W, int W_size, float *X, float 
     return W;
 }
 
+extern "C" float* train_regression_linear(float* W, int W_size, float* X, float* Y,int Y_size, int count, float step, int X_flatten_size, int dim) {
+
+    int col;
+    if (dim == 1) {
+        col = X_flatten_size;
+    }
+    if (dim == 2) {
+        col = X_flatten_size / (W_size - 1);
+    }
+    int row = (W_size - 1);
+
+    float** x = new float* [col];
+
+    for (int i = 0; i < col; i++) {
+        x[i] = new float[row];
+    }
+    //cout << "col " << col << " row " << row << endl;
+    int x_count = 0;
+    for (int i = 0; i < col; i++) {
+        for (int j = 0; j < row; j++) {
+            x[i][j] = X[x_count];
+            x_count++;
+        }
+    }
+    /*for (int i = 0; i < col; i++) {
+        for (int j = 0; j < row; j++) {
+            cout << "i "<< i << " j " << j << " value " << x[i][j] << endl;
+        }
+    }*/
+    float** xt = TransposeMat(x, col, row);
+    float** xtx = DotMatDouble(x, col, row, xt, row, col);
+    float** xtx_cache = xtx;
+
+    float** xtx_inv = InverseMat(xtx, col, col);
+
+    while (isnan(xtx_inv[0][0])) {
+        cout << "pas inversible" << endl;
+        float** ridge = new float* [col];
+        for (int i = 0; i < col; i++) {
+            ridge[i] = new float[row];
+        }
+
+        for (int i = 0; i < col; i++) {
+            for (int j = 0; j < col; j++) {
+                if (i == j) {
+                    ridge[i][j] = 0.1;
+                }
+                else {
+                    ridge[i][j] = 0.0;
+                }
+            }
+        }
+        cout << "ridge " << endl;
+        for (int i = 0; i < col; i++) {
+            for (int j = 0; j < col; j++) {
+                cout << " " << ridge[i][j];
+            }
+            cout << endl;
+        }
+        xtx_cache = AddMat(xtx_cache, ridge, col);
+        xtx_inv = InverseMat(xtx_cache, col, col);
+
+    }
+    cout << "inversible" << endl;
+
+    cout << "xtx_inv " << endl;
+    for (int i = 0; i < col; i++) {
+        for (int j = 0; j < col; j++) {
+            cout << " " << xtx_inv[i][j];
+        }
+        cout << endl;
+    }
+    //W= (Inverse(transpose(X)*X)*transpose(X))*Y
+
+    DotMatDouble(xtx_inv, col, col, xt, row, col);
+
+    DotMatSimple(xtx_inv, col, col, Y, Y_size);
+
+    //float** test = DotMat(xtx_inv, col, col, xt, row, col);
+
+    return W;
+}
+
+float** InverseMat(float** mat, int col, int row) {
+    /*float** inv = new float* [col];
+    for (int i = 0; i < col; i++) {
+        inv[i] = new float[row];
+    }
+
+    for (int i = 0; i < col; i++) {
+        for (int j = 0; j < row; j++) {
+            if (i == j) {
+                inv[i][j] = 1;
+            }
+            else {
+                inv[i][j] = 0;
+            }
+        }
+    }
+    cout << "inv " << endl;
+    for (int i = 0; i < col; i++) {
+        for (int j = 0; j < row; j++) {
+            cout << " " << inv[i][j];
+        }
+        cout << endl;
+    }
+
+    cout << "mat " << endl;
+    for (int i = 0; i < col; i++) {
+        for (int j = 0; j < row; j++) {
+            cout << " " << mat[i][j];
+        }
+        cout << endl;
+    }
+
+    for (int i = 0; i < col; i++)
+    {
+        for (int j = 0; j < col; j++)
+        {
+            if (i == j)
+            {
+                mat[i][j + col] = 1;
+            }
+            else
+            {
+                mat[i][j + col] = 0;
+            }
+        }
+    }
+
+    cout << "mat " << endl;
+    for (int i = 0; i < col; i++) {
+        for (int j = 0; j < row; j++) {
+            cout << " " << mat[i][j];
+        }
+        cout << endl;
+    }*/
+
+    int order = col;
+    cout << "col " << col << endl;
+    float temp;
+    float** inv = new float* [20];
+    for (int i = 0; i < 20; i++)
+        inv[i] = new float[20];
+
+    for (int i = 0; i < order; i++) {
+        for (int j = 0; j < 2 * order; j++) {
+            inv[i][j] = 0;
+        }
+    }
+    cout << "mat " << endl;
+    for (int i = 0; i < col; i++) {
+        for (int j = 0; j < row; j++) {
+            cout << " " << mat[i][j];
+        }
+        cout << endl;
+    }
+
+
+    /*inv[0][0] = 6; inv[0][1] = 9; inv[0][2] = 5;
+    inv[1][0] = 8; inv[1][1] = 3; inv[1][2] = 2;
+    inv[2][0] = 1; inv[2][1] = 4; inv[2][2] = 7;*/
+
+    cout << "mat " << endl;
+    for (int i = 0; i < col; i++) {
+        for (int j = 0; j < row; j++) {
+            cout << " " << mat[i][j];
+            inv[i][j] = mat[i][j];
+        }
+        cout << endl;
+    }
+
+    for (int i = 0; i < order; i++) {
+        for (int j = 0; j < 2 * order; j++) {
+            if (j == (i + order))
+                inv[i][j] = 1;
+        }
+    }
+    cout << "matinvbeforetest " << endl;
+    for (int i = 0; i < order; i++) {
+        for (int j = 0; j < order * 2; j++) {
+            cout << " " << inv[i][j];
+        }
+        cout << endl;
+    }
+    for (int i = order - 1; i > 0; i--) {
+        if (inv[i - 1][0] < inv[i][0]) {
+            float* temp = inv[i];
+            inv[i] = inv[i - 1];
+            inv[i - 1] = temp;
+        }
+    }
+    for (int i = 0; i < order; i++) {
+        for (int j = 0; j < order; j++) {
+            if (j != i) {
+                temp = inv[j][i] / inv[i][i];
+                for (int k = 0; k < 2 * order; k++) {
+                    inv[j][k] -= inv[i][k] * temp;
+                }
+            }
+        }
+    }
+    for (int i = 0; i < order; i++) {
+        temp = inv[i][i];
+        for (int j = 0; j < 2 * order; j++) {
+            inv[i][j] = inv[i][j] / temp;
+        }
+    }
+
+    cout << "matinvaftertest " << endl;
+    for (int i = 0; i < order; i++) {
+        for (int j = order; j < order * 2; j++) {
+            printf("%.3f\t", inv[i][j]);
+        }
+        cout << endl;
+    }
+
+    float** invfinal = new float* [col];
+    for (int i = 0; i < col; i++)
+        invfinal[i] = new float[col];
+
+    for (int i = 0; i < order; i++) {
+        for (int j = order; j < order * 2; j++) {
+            invfinal[i][j-order] = inv[i][j];
+        }
+    }
+
+    return invfinal;
+}
+
+float** DotMatDouble(float** mat1, int col1, int row1, float** mat2, int col2, int row2) {
+
+
+    float** mat_dot = new float* [col1];
+    for (int i = 0; i < col1; i++) {
+        mat_dot[i] = new float[row2];
+    }
+    cout << "col 2 " << col2 << " row 2 " << row2<<endl;
+
+    for (int i = 0; i < col1; i++) {
+        for (int j = 0; j < row2; j++) {
+            mat_dot[i][j] = 0;
+        }
+    }
+
+    cout << "mat dot before" << endl;
+    for (int i = 0; i < col1; i++) {
+        for (int j = 0; j < row2; j++) {
+            cout << " " << mat_dot[i][j];
+        }
+        cout << endl;
+    }
+
+    cout << "mat1" << endl;
+    for (int i = 0; i < col1; i++) {
+        for (int j = 0; j < row1; j++) {
+            cout << " " << mat1[i][j];
+        }
+        cout << endl;
+    }
+    cout << "mat2" << endl;
+    for (int i = 0; i < col2; i++) {
+        for (int j = 0; j < row2; j++) {
+            cout << " " << mat2[i][j];
+        }
+        cout << endl;
+    }
+
+    for (int i = 0; i < col1; i++) {
+        for (int j = 0; j < row2; j++) {
+            for (int k = 0; k < row1; k++)
+            {
+                mat_dot[i][j] = mat_dot[i][j] + mat1[i][k] * mat2[k][j];
+                //cout << "mat1 dot " << mat1[i][k] << " mat2 " << mat2[k][j] << endl;
+            }
+        }
+    }
+
+    /*for (int i = 0; i < col1; i++) {
+        for (int j = 0; j < row1; j++) {
+            cout << "Mat1 " << mat1[i][j] << endl;
+        }
+    }
+
+    for (int i = 0; i < row1; i++) {
+        for (int j = 0; j < col1; j++) {
+            cout << "Mat2 " << mat2[i][j] << endl;
+        }
+    }*/
+    cout << "mat dot after" << endl;
+    for (int i = 0; i < col1; i++) {
+        for (int j = 0; j < row2; j++) {
+            cout << " " << mat_dot[i][j];
+        }
+        cout << endl;
+    }
+
+    return mat_dot;
+}
+float* DotMatSimple(float** mat1, int col1, int row1, float* mat2, int size) {
+
+
+    float* mat_dot = new float [size];
+
+    for (int i = 0; i < size; i++) {
+        mat_dot[i] = mat2[i];
+    }
+    cout << "Mat1 " << endl;
+    for (int i = 0; i < col1; i++) {
+        for (int j = 0; j < row1; j++) {
+            cout << " " << mat1[i][j];
+        }
+        cout << endl;
+    }
+
+    for (int i = 0; i < col1; i++) {
+        mat_dot[i] = (mat_dot[i] * mat1[i][0]) + (mat_dot[i] * mat1[i][1]) + (mat_dot[i] * mat1[i][2]);
+    }
+
+    /*for (int i = 0; i < col1; i++) {
+        for (int j = 0; j < row1; j++) {
+            cout << "Mat1 " << mat1[i][j] << endl;
+        }
+    }
+
+    for (int i = 0; i < row1; i++) {
+        for (int j = 0; j < col1; j++) {
+            cout << "Mat2 " << mat2[i][j] << endl;
+        }
+    }*/
+    cout << "mat dot simple" << endl;
+    for (int i = 0; i < size; i++) {
+        cout << " " << mat_dot[i];
+        cout << endl;
+    }
+
+    return mat_dot;
+}
+
+float** TransposeMat(float** mat, int col, int row) {
+
+    cout << "mat before transpose " << endl;
+    for (int i = 0; i < col; i++) {
+        for (int j = 0; j < row; j++) {
+            cout << " " << mat[i][j];
+        }
+        cout << endl;
+    }
+    float** mat_t = new float* [row];
+    for (int i = 0; i < row; i++) {
+        mat_t[i] = new float[col];
+    }
+
+    int test = 0;
+    for (int i = 0; i < row; i++) {
+        for (int j = 0; j < col; j++) {
+            mat_t[i][j] = mat[j][i];
+        }
+    }
+    cout << "mat transpose " << endl;
+    for (int i = 0; i < row; i++) {
+        for (int j = 0; j < col; j++) {
+            cout << " " << mat_t[i][j];
+        }
+        cout << endl;
+    }
+    return mat_t;
+}
+
+float** AddMat(float** mat1, float** mat2, int size) {
+    float** mat_add = new float* [size];
+    for (int i = 0; i < size; i++) {
+        mat_add[i] = new float[size];
+    }
+
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            mat_add[i][j] = 0;
+        }
+    }
+
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            mat_add[i][j] = mat_add[i][j] + mat1[i][j] + mat2[i][j];
+            //cout << "mat1 dot " << mat1[i][k] << " mat2 " << mat2[k][j] << endl;
+        }
+    }
+
+    return mat_add;
+}
+
 extern "C" int ReadArrayValue(float *arr)
 {
     return sizeof(arr);

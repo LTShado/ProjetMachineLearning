@@ -4,7 +4,8 @@ import math
 from ctypes import *
 import time
 
-PATH_TO_SHARED_LIBRARY = "Lib/MachineLearningLib/x64/Debug/MachineLearningLib.dll"
+#PATH_TO_SHARED_LIBRARY = "Lib/MachineLearningLib/x64/Debug/MachineLearningLib.dll"
+PATH_TO_SHARED_LIBRARY = "MachineLearningLib/x64/Debug/MachineLearningLib.dll"
 ################################## TESTS ##################################
 ############### SIMPLE TEST ###############
 
