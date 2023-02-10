@@ -532,15 +532,47 @@ def Linear_Tricky_3D(lib):
         [2, 2],
         [3, 3]
     ])
+    X_arr = X.tolist()
     print(len(X))
     Y = np.array([
         1,
         2,
         3
     ])
-    fig = plt.figure()
-    ax = Axes3D(fig)
-    ax.scatter(X[:, 0], X[:, 1], Y)
+    Y_arr = Y.tolist()
+
+    size = 2;
+
+    W = create_model(lib, size)
+    W_ptr = cast(W, POINTER(c_float))
+
+    W_transfo = []
+    for i in range(size + 1):
+        W_transfo.append(W_ptr[i])
+
+    D = train_regression_linear(lib, W, len(W_transfo), X.flatten(), len(X_arr), Y_arr, len(Y_arr), 1000, 0.1,
+                                len(X_arr), 2)
+    D_ptr = cast(D, POINTER(c_float))
+
+    D_transfo = []
+    for i in range(size):
+        D_transfo.append(W_ptr[i])
+
+    points_x = []
+    points_y = []
+    points_z = []
+
+    for i in range(10, 31):
+        for j in range(10, 31):
+            points_x.append(float(i / 10))
+            points_y.append(float(j / 10))
+            points_z.append(float(predict_regression(lib, D, len(D_transfo), [i / 10, j / 10])))
+            # print('predict ',predict_regression(lib, D,len(D_transfo), [i / 10, j / 10]))
+
+    fig = plt.figure(figsize=plt.figaspect(0.5))
+    ax = fig.add_subplot(1, 2, 1, projection='3d')
+    ax.scatter(points_x, points_y, points_z)
+    ax.scatter(X[:, 0], X[:, 1], Y, c="orange", s=100)
     plt.show()
     plt.clf()
 
@@ -553,15 +585,47 @@ def Non_Linear_Simple_3D(lib):
         [1, 1],
         [0, 0],
     ])
+    X_arr = X.tolist()
     Y = np.array([
         2,
         1,
         -2,
         -1
     ])
-    fig = plt.figure()
-    ax = Axes3D(fig)
-    ax.scatter(X[:, 0], X[:, 1], Y)
+    Y_arr = Y.tolist()
+
+    size = 2;
+
+    W = create_model(lib, size)
+    W_ptr = cast(W, POINTER(c_float))
+
+    W_transfo = []
+    for i in range(size + 1):
+        W_transfo.append(W_ptr[i])
+
+    D = train_regression_linear(lib, W, len(W_transfo), X.flatten(), len(X_arr), Y_arr, len(Y_arr), 1000, 0.1,
+                                len(X_arr), 2)
+    D_ptr = cast(D, POINTER(c_float))
+
+    D_transfo = []
+    for i in range(size):
+        D_transfo.append(W_ptr[i])
+
+    points_x = []
+    points_y = []
+    points_z = []
+
+    for i in range(0, 11):
+        for j in range(0, 11):
+            points_x.append(float(i / 10))
+            points_y.append(float(j / 10))
+            points_z.append(float(predict_regression(lib, D, len(D_transfo), [i / 10, j / 10])))
+            # print('predict ',predict_regression(lib, D,len(D_transfo), [i / 10, j / 10]))
+
+    fig = plt.figure(figsize=plt.figaspect(0.5))
+    ax = fig.add_subplot(1, 2, 1, projection='3d')
+    ax.scatter(points_x, points_y, points_z)
+    ax.scatter(X[:, 0], X[:, 1], Y, c="orange", s=100)
     plt.show()
     plt.clf()
 
@@ -692,6 +756,6 @@ if __name__ == "__main__":
     ##Regression
     #Linear_Simple_2D(lib)
     #Non_Linear_Simple_2D(lib)
-    Linear_Simple_3D(lib)
+    #Linear_Simple_3D(lib)
     #Linear_Tricky_3D(lib)
-    #Non_Linear_Simple_3D(lib)
+    Non_Linear_Simple_3D(lib)

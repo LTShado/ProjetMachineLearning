@@ -149,8 +149,8 @@ extern "C" float* train_regression_linear(float* W, int W_size, float* X, float*
                 }
                 cout << endl;
             }
-            xtx_cache = AddMat(xtx_cache, ridge, col);
-            xtx_inv = InverseMat(xtx_cache, col, col);
+            xtx_cache = AddMat(xtx_cache, ridge, row);
+            xtx_inv = InverseMat(xtx_cache, row, row);
 
         }
     }
@@ -430,8 +430,6 @@ float* DotMatSimple(float** mat1, int col1, int row1, float* mat2, int size) {
         cout << " " << mat_dot[i];
         cout << endl;
     }
-
-    
 
     return mat_dot;
 }
