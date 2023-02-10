@@ -142,11 +142,11 @@ def testMultiLinear3Classes(lib):
 
     def cColor3(pred):
         m = max(pred[0:3])
-        if pred[0]>=0 and pred[0]==m:
+        if pred[0]>=0.4 and pred[0]==m:
             return 'lightcyan'
-        elif pred[1]>=0 and pred[1]==m:
+        elif pred[1]>=0.4 and pred[1]==m:
             return 'pink'
-        elif pred[2]>=0 and pred[2]==m:
+        elif pred[2]>=0.4 and pred[2]==m:
             return 'lightgreen'
         else:
             return 'white'
@@ -189,8 +189,8 @@ def testMultiCross(lib):
     pColor = pColor3
     cColor = cColor3
 
-    model = createModelPMC(lib,[2, 4, 4, 3])
-    trainPMC(lib, model, points, classes, True, 0.1, 1000000)
+    model = createModelPMC(lib,[2, 26, 26, 3])
+    trainPMC(lib, model, points, classes, True, 0.01, 1000000)
     displayPredictClassif(lib, model, points, classes, True, pColor, cColor, -1.5)
     print("end testMultiCross")
 
@@ -313,7 +313,8 @@ def displayPredictClassif(lib, model, xTrain, yTrain, isClassification, pColor, 
     for row in range(0, 300):
         for col in range(0, 300):
             p = np.array([col / 100 + offset, row / 100 + offset])
-            c = cColor(predictPMC(lib,model, p, isClassification))
+            pred  = predictPMC(lib,model, p, isClassification)
+            c = cColor(pred)
             test_points.append(p)
             test_colors.append(c)
     test_points = np.array(test_points)
@@ -333,7 +334,6 @@ def displayPredictRegression2D(lib, model, xTrain, yTrain, isClassification, pCo
         for col in range(0, 300):
             p = np.array([col / 100 + offset, row / 100 + offset])
             pred = predictPMC(lib,model, p, isClassification)
-            print(pred[0])
             c = cColor(pred)
             test_points.append(p)
             test_colors.append(c)
@@ -360,5 +360,5 @@ if __name__ == "__main__":
     # call function
     runAllSimpleTest(lib)
     runAllClassificationTest(lib)
-    #testLinearSimple2D(lib)
+    
     
