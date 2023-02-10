@@ -118,53 +118,54 @@ extern "C" float* train_regression_linear(float* W, int W_size, float* X, float*
         }
     }*/
     float** xt = TransposeMat(x, col, row);
-    float** xtx = DotMatDouble(x, col, row, xt, row, col);
+    //float** xtx = DotMatDouble(x, col, row, xt, row, col);
+    float** xtx = DotMatDouble(xt, row, col, x, col, row);
     float** xtx_cache = xtx;
 
-    float** xtx_inv = InverseMat(xtx, col, col);
+    float** xtx_inv = InverseMat(xtx, row, row);
 
-    while (isnan(xtx_inv[0][0])) {
-        cout << "pas inversible" << endl;
-        float** ridge = new float* [col];
-        for (int i = 0; i < col; i++) {
-            ridge[i] = new float[row];
-        }
+    if (isnan(xtx_inv[0][0])) {
+        while (isnan(xtx_inv[0][0])) {
+            cout << "pas inversible" << endl;
+            float** ridge = new float* [col];
+            for (int i = 0; i < col; i++) {
+                ridge[i] = new float[row];
+            }
 
-        for (int i = 0; i < col; i++) {
-            for (int j = 0; j < col; j++) {
-                if (i == j) {
-                    ridge[i][j] = 0.1;
-                }
-                else {
-                    ridge[i][j] = 0.0;
+            for (int i = 0; i < col; i++) {
+                for (int j = 0; j < col; j++) {
+                    if (i == j) {
+                        ridge[i][j] = 0.1;
+                    }
+                    else {
+                        ridge[i][j] = 0.0;
+                    }
                 }
             }
-        }
-        cout << "ridge " << endl;
-        for (int i = 0; i < col; i++) {
-            for (int j = 0; j < col; j++) {
-                cout << " " << ridge[i][j];
+            cout << "ridge " << endl;
+            for (int i = 0; i < col; i++) {
+                for (int j = 0; j < col; j++) {
+                    cout << " " << ridge[i][j];
+                }
+                cout << endl;
             }
-            cout << endl;
-        }
-        xtx_cache = AddMat(xtx_cache, ridge, col);
-        xtx_inv = InverseMat(xtx_cache, col, col);
+            xtx_cache = AddMat(xtx_cache, ridge, col);
+            xtx_inv = InverseMat(xtx_cache, col, col);
 
+        }
     }
     cout << "inversible" << endl;
 
     cout << "xtx_inv " << endl;
-    for (int i = 0; i < col; i++) {
-        for (int j = 0; j < col; j++) {
+    for (int i = 0; i < row; i++) {
+        for (int j = 0; j < row; j++) {
             cout << " " << xtx_inv[i][j];
         }
         cout << endl;
     }
-    //W= (Inverse(transpose(X)*X)*transpose(X))*Y
 
-   // DotMatDouble(xtx_inv, col, col, xt, row, col);
-
-    DotMatSimple(xtx_inv, col, col, Y, Y_size);
+    cout << "w" << endl;
+    W = DotMatSimple(DotMatDouble(xtx_inv, row, row, xt, row, col), row, col, Y, Y_size);
 
     //float** test = DotMat(xtx_inv, col, col, xt, row, col);
 
@@ -341,7 +342,7 @@ float** DotMatDouble(float** mat1, int col1, int row1, float** mat2, int col2, i
         cout << endl;
     }
 
-    cout << "mat1" << endl;
+    /*cout << "mat1" << endl;
     for (int i = 0; i < col1; i++) {
         for (int j = 0; j < row1; j++) {
             cout << " " << mat1[i][j];
@@ -354,7 +355,7 @@ float** DotMatDouble(float** mat1, int col1, int row1, float** mat2, int col2, i
             cout << " " << mat2[i][j];
         }
         cout << endl;
-    }
+    }*/
 
     for (int i = 0; i < col1; i++) {
         for (int j = 0; j < row2; j++) {
@@ -387,21 +388,26 @@ float** DotMatDouble(float** mat1, int col1, int row1, float** mat2, int col2, i
 
     return mat_dot;
 }
+
 float* DotMatSimple(float** mat1, int col1, int row1, float* mat2, int size) {
 
 
-    float* mat_dot = new float [size];
+    float* mat_dot = new float [col1];
 
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < col1; i++) {
         mat_dot[i] = mat2[i];
     }
-    cout << "Mat1 " << endl;
+    /*cout << "Mat1 " << endl;
     for (int i = 0; i < col1; i++) {
         for (int j = 0; j < row1; j++) {
             cout << " " << mat1[i][j];
         }
         cout << endl;
     }
+    cout << "Mat2 " << endl;
+    for (int i = 0; i < size; i++) {
+        cout << " " << mat2[i] << endl;
+    }*/
 
     for (int i = 0; i < col1; i++) {
         mat_dot[i] = (mat_dot[i] * mat1[i][0]) + (mat_dot[i] * mat1[i][1]) + (mat_dot[i] * mat1[i][2]);
@@ -418,11 +424,14 @@ float* DotMatSimple(float** mat1, int col1, int row1, float* mat2, int size) {
             cout << "Mat2 " << mat2[i][j] << endl;
         }
     }*/
+
     cout << "mat dot simple" << endl;
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < col1; i++) {
         cout << " " << mat_dot[i];
         cout << endl;
     }
+
+    
 
     return mat_dot;
 }
@@ -477,6 +486,20 @@ float** AddMat(float** mat1, float** mat2, int size) {
     }
 
     return mat_add;
+}
+
+extern "C" float predict_regression(float* W,int W_size, float* value) {
+    float sum = 0;
+
+    for (int i = 0; i < W_size;i++) {
+        //cout << "W " << W[i] << endl;
+        //cout << "Y " << value[i] << endl;
+
+        sum = sum + (W[i] * value[i]);
+        //cout << "sum " << sum << endl;
+    }
+
+    return sum;
 }
 
 extern "C" int ReadArrayValue(float *arr)

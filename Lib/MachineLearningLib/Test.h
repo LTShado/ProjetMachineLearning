@@ -35,6 +35,8 @@ float* DotMatSimple(float** mat1, int col1, int row1, float* mat2, int size);
 float** InverseMat(float** mat, int col, int row);
 float** AddMat(float** mat1, float** mat2, int size);
 
+extern "C" MACHINELEARNINGLIB_API float predict_regression(float* W,int W_size, float* value);
+
 extern "C" MACHINELEARNINGLIB_API int ReadArrayValue(float *arr);
 
 extern "C" MACHINELEARNINGLIB_API int test();

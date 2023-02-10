@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import math
 from ctypes import *
 import time
-from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d.axes3d import Axes3D, get_test_data
 
 PATH_TO_SHARED_LIBRARY = "MachineLearningLib/x64/Debug/MachineLearningLib.dll"
 
@@ -490,13 +490,6 @@ def Linear_Simple_3D(lib):
         2.5
     ])
     Y_arr = Y.tolist()
-
-    fig = plt.figure()
-    ax = Axes3D(fig)
-    ax.scatter(X[:, 0], X[:, 1], Y)
-    plt.show()
-    plt.clf()
-
     size = 2;
 
     W = create_model(lib, size)
@@ -507,6 +500,29 @@ def Linear_Simple_3D(lib):
         W_transfo.append(W_ptr[i])
 
     D = train_regression_linear(lib, W, len(W_transfo), X.flatten(), len(X_arr), Y_arr, len(Y_arr), 1000, 0.1, len(X_arr),2)
+    D_ptr = cast(D, POINTER(c_float))
+
+    D_transfo = []
+    for i in range(size):
+        D_transfo.append(W_ptr[i])
+
+    points_x = []
+    points_y = []
+    points_z = []
+
+    for i in range(10, 31):
+        for j in range(10, 31):
+            points_x.append(float(i / 10))
+            points_y.append(float(j / 10))
+            points_z.append(float(predict_regression(lib, D,len(D_transfo), [i / 10, j / 10])))
+            #print('predict ',predict_regression(lib, D,len(D_transfo), [i / 10, j / 10]))
+
+    fig = plt.figure(figsize=plt.figaspect(0.5))
+    ax = fig.add_subplot(1, 2, 1, projection='3d')
+    ax.scatter(points_x, points_y, points_z)
+    ax.scatter(X[:, 0], X[:, 1], Y, c="orange", s=100)
+    plt.show()
+    plt.clf()
 
     print('linear simple 3d')
 
@@ -610,6 +626,15 @@ def train_regression_linear(lib, model, model_size, X, Xlen, Y, Ylen, count, ste
     print('finish')
     return lib.train_regression_linear(model, model_size, X, Y,len(Y), count, step, len(X), dim)
 
+def predict_regression(lib,model,size,value):
+    inputs_float = [float(i) for i in value]
+    inputs_type = len(inputs_float) * c_float
+
+    lib.predict_regression.argtypes = [POINTER(c_float),c_int, inputs_type]
+
+    lib.predict_regression.restype = c_float
+
+    return lib.predict_regression(model,size, inputs_type(*inputs_float))
 
 def affichage_avant_test(a, b, c, d, e, f, num):
     if (num == 2):
@@ -657,7 +682,7 @@ if __name__ == "__main__":
 
     # Cas_Test
     ##Classification
-    # Linear_Simple_test(lib)
+    #Linear_Simple_test(lib)
     # Linear_Multiple_test(lib)
     # XOR_test(lib)
     # Cross_test(lib)
