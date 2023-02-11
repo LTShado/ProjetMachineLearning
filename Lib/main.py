@@ -428,11 +428,6 @@ def Linear_Simple_2D(lib):
           3
     ])
     Y_arr = Y.tolist()
-
-    plt.scatter(X, Y)
-    plt.show()
-    plt.clf()
-
     size = 2;
 
     W = create_model(lib, size)
@@ -442,8 +437,26 @@ def Linear_Simple_2D(lib):
     for i in range(size + 1):
         W_transfo.append(W_ptr[i])
 
-    D = train_regression_linear(lib, W, len(W_transfo), X.flatten(), len(X_arr), Y_arr, len(Y_arr), 1000, 0.1, len(X_arr),1)
+    D = train_regression_linear(lib, W, len(W_transfo), X.flatten(), len(X_arr), Y_arr, len(Y_arr), 1000, 0.1,
+                                len(X_arr), 1)
+    D_ptr = cast(D, POINTER(c_float))
 
+    D_transfo = []
+    for i in range(size):
+        D_transfo.append(W_ptr[i])
+
+    point_x = []
+    point_y = []
+
+    for i in range(10, 31):
+        point_x.append(float(i / 10))
+        point_y.append(float(predict_regression(lib, D, len(D_transfo), [i / 10],1)))
+
+    plt.scatter(point_x, point_y)
+
+    plt.scatter(X, Y)
+    plt.show()
+    plt.clf()
     print('linear simple 2d')
 
 def Non_Linear_Simple_2D(lib):
@@ -459,10 +472,6 @@ def Non_Linear_Simple_2D(lib):
         2.5
     ])
     Y_arr = Y.tolist()
-    plt.scatter(X, Y)
-    plt.show()
-    plt.clf()
-
     size = 2;
 
     W = create_model(lib, size)
@@ -473,7 +482,25 @@ def Non_Linear_Simple_2D(lib):
         W_transfo.append(W_ptr[i])
 
     D = train_regression_linear(lib, W, len(W_transfo), X.flatten(), len(X_arr), Y_arr, len(Y_arr), 1000, 0.1,
-                                len(X_arr),1)
+                                len(X_arr), 1)
+    D_ptr = cast(D, POINTER(c_float))
+
+    D_transfo = []
+    for i in range(size):
+        D_transfo.append(W_ptr[i])
+
+    point_x = []
+    point_y = []
+
+    for i in range(10, 31):
+        point_x.append(float(i / 10))
+        point_y.append(float(predict_regression(lib, D, len(D_transfo), [i / 10],1)))
+
+    plt.scatter(point_x, point_y)
+
+    plt.scatter(X, Y)
+    plt.show()
+    plt.clf()
 
     print('non linear simple 2d')
 
@@ -514,7 +541,7 @@ def Linear_Simple_3D(lib):
         for j in range(10, 31):
             points_x.append(float(i / 10))
             points_y.append(float(j / 10))
-            points_z.append(float(predict_regression(lib, D,len(D_transfo), [i / 10, j / 10])))
+            points_z.append(float(predict_regression(lib, D,len(D_transfo), [i / 10, j / 10],2)))
             #print('predict ',predict_regression(lib, D,len(D_transfo), [i / 10, j / 10]))
 
     fig = plt.figure(figsize=plt.figaspect(0.5))
@@ -566,7 +593,7 @@ def Linear_Tricky_3D(lib):
         for j in range(10, 31):
             points_x.append(float(i / 10))
             points_y.append(float(j / 10))
-            points_z.append(float(predict_regression(lib, D, len(D_transfo), [i / 10, j / 10])))
+            points_z.append(float(predict_regression(lib, D, len(D_transfo), [i / 10, j / 10],2)))
             # print('predict ',predict_regression(lib, D,len(D_transfo), [i / 10, j / 10]))
 
     fig = plt.figure(figsize=plt.figaspect(0.5))
@@ -619,7 +646,7 @@ def Non_Linear_Simple_3D(lib):
         for j in range(0, 11):
             points_x.append(float(i / 10))
             points_y.append(float(j / 10))
-            points_z.append(float(predict_regression(lib, D, len(D_transfo), [i / 10, j / 10])))
+            points_z.append(float(predict_regression(lib, D, len(D_transfo), [i / 10, j / 10],2)))
             # print('predict ',predict_regression(lib, D,len(D_transfo), [i / 10, j / 10]))
 
     fig = plt.figure(figsize=plt.figaspect(0.5))
@@ -690,15 +717,15 @@ def train_regression_linear(lib, model, model_size, X, Xlen, Y, Ylen, count, ste
     print('finish')
     return lib.train_regression_linear(model, model_size, X, Y,len(Y), count, step, len(X), dim)
 
-def predict_regression(lib,model,size,value):
+def predict_regression(lib,model,size,value,dim):
     inputs_float = [float(i) for i in value]
     inputs_type = len(inputs_float) * c_float
 
-    lib.predict_regression.argtypes = [POINTER(c_float),c_int, inputs_type]
+    lib.predict_regression.argtypes = [POINTER(c_float),c_int, inputs_type, c_int]
 
     lib.predict_regression.restype = c_float
 
-    return lib.predict_regression(model,size, inputs_type(*inputs_float))
+    return lib.predict_regression(model,size, inputs_type(*inputs_float),dim)
 
 def affichage_avant_test(a, b, c, d, e, f, num):
     if (num == 2):
@@ -754,8 +781,9 @@ if __name__ == "__main__":
     # Multi_Cross_test(lib)
 
     ##Regression
-    #Linear_Simple_2D(lib)
-    #Non_Linear_Simple_2D(lib)
+    Linear_Simple_2D(lib)
+    Non_Linear_Simple_2D(lib)
+
     #Linear_Simple_3D(lib)
     #Linear_Tricky_3D(lib)
-    Non_Linear_Simple_3D(lib)
+    #Non_Linear_Simple_3D(lib)
