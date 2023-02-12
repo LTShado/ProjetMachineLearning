@@ -3,10 +3,11 @@ import matplotlib.pyplot as plt
 import math
 from ctypes import *
 import time
+from mpl_toolkits.mplot3d.axes3d import Axes3D, get_test_data
 
 PATH_TO_SHARED_LIBRARY = "MachineLearningLib/x64/Debug/MachineLearningLib.dll"
 
-
+##Classification
 def Linear_Simple_test(lib):
     X_arr = [
         [1, 1],
@@ -414,6 +415,248 @@ def Multi_Cross_test(lib):
     plt.clf()
     print("multi cross")
 
+##Regression
+
+def Linear_Simple_2D(lib):
+    X = np.array([
+          [1],
+          [2]
+    ])
+    X_arr = X.tolist()
+    Y = np.array([
+          2,
+          3
+    ])
+    Y_arr = Y.tolist()
+    size = 2;
+
+    W = create_model(lib, size)
+    W_ptr = cast(W, POINTER(c_float))
+
+    W_transfo = []
+    for i in range(size + 1):
+        W_transfo.append(W_ptr[i])
+
+    D = train_regression_linear(lib, W, len(W_transfo), X.flatten(), len(X_arr), Y_arr, len(Y_arr), 1000, 0.1,
+                                len(X_arr), 1)
+    D_ptr = cast(D, POINTER(c_float))
+
+    D_transfo = []
+    for i in range(size):
+        D_transfo.append(W_ptr[i])
+
+    point_x = []
+    point_y = []
+
+    for i in range(10, 31):
+        point_x.append(float(i / 10))
+        point_y.append(float(predict_regression(lib, D, len(D_transfo), [i / 10],1)))
+
+    plt.scatter(point_x, point_y)
+
+    plt.scatter(X, Y)
+    plt.show()
+    plt.clf()
+    print('linear simple 2d')
+
+def Non_Linear_Simple_2D(lib):
+    X = np.array([
+        [1],
+        [2],
+        [3]
+    ])
+    X_arr = X.tolist()
+    Y = np.array([
+        2,
+        3,
+        2.5
+    ])
+    Y_arr = Y.tolist()
+    size = 2;
+
+    W = create_model(lib, size)
+    W_ptr = cast(W, POINTER(c_float))
+
+    W_transfo = []
+    for i in range(size + 1):
+        W_transfo.append(W_ptr[i])
+
+    D = train_regression_linear(lib, W, len(W_transfo), X.flatten(), len(X_arr), Y_arr, len(Y_arr), 1000, 0.1,
+                                len(X_arr), 1)
+    D_ptr = cast(D, POINTER(c_float))
+
+    D_transfo = []
+    for i in range(size):
+        D_transfo.append(W_ptr[i])
+
+    point_x = []
+    point_y = []
+
+    for i in range(10, 31):
+        point_x.append(float(i / 10))
+        point_y.append(float(predict_regression(lib, D, len(D_transfo), [i / 10],1)))
+
+    plt.scatter(point_x, point_y)
+
+    plt.scatter(X, Y)
+    plt.show()
+    plt.clf()
+
+    print('non linear simple 2d')
+
+def Linear_Simple_3D(lib):
+    X = np.array([
+        [1, 1],
+        [2, 2],
+        [3, 1]
+    ])
+    X_arr = X.tolist()
+    Y = np.array([
+        2,
+        3,
+        2.5
+    ])
+    Y_arr = Y.tolist()
+    size = 2;
+
+    W = create_model(lib, size)
+    W_ptr = cast(W, POINTER(c_float))
+
+    W_transfo = []
+    for i in range(size + 1):
+        W_transfo.append(W_ptr[i])
+
+    D = train_regression_linear(lib, W, len(W_transfo), X.flatten(), len(X_arr), Y_arr, len(Y_arr), 1000, 0.1, len(X_arr),2)
+    D_ptr = cast(D, POINTER(c_float))
+
+    D_transfo = []
+    for i in range(size):
+        D_transfo.append(W_ptr[i])
+
+    points_x = []
+    points_y = []
+    points_z = []
+
+    for i in range(10, 31):
+        for j in range(10, 31):
+            points_x.append(float(i / 10))
+            points_y.append(float(j / 10))
+            points_z.append(float(predict_regression(lib, D,len(D_transfo), [i / 10, j / 10],2)))
+            #print('predict ',predict_regression(lib, D,len(D_transfo), [i / 10, j / 10]))
+
+    fig = plt.figure(figsize=plt.figaspect(0.5))
+    ax = fig.add_subplot(1, 2, 1, projection='3d')
+    ax.scatter(points_x, points_y, points_z)
+    ax.scatter(X[:, 0], X[:, 1], Y, c="orange", s=100)
+    plt.show()
+    plt.clf()
+
+    print('linear simple 3d')
+
+def Linear_Tricky_3D(lib):
+    X = np.array([
+        [1, 1],
+        [2, 2],
+        [3, 3]
+    ])
+    X_arr = X.tolist()
+    print(len(X))
+    Y = np.array([
+        1,
+        2,
+        3
+    ])
+    Y_arr = Y.tolist()
+
+    size = 2;
+
+    W = create_model(lib, size)
+    W_ptr = cast(W, POINTER(c_float))
+
+    W_transfo = []
+    for i in range(size + 1):
+        W_transfo.append(W_ptr[i])
+
+    D = train_regression_linear(lib, W, len(W_transfo), X.flatten(), len(X_arr), Y_arr, len(Y_arr), 1000, 0.1,
+                                len(X_arr), 2)
+    D_ptr = cast(D, POINTER(c_float))
+
+    D_transfo = []
+    for i in range(size):
+        D_transfo.append(W_ptr[i])
+
+    points_x = []
+    points_y = []
+    points_z = []
+
+    for i in range(10, 31):
+        for j in range(10, 31):
+            points_x.append(float(i / 10))
+            points_y.append(float(j / 10))
+            points_z.append(float(predict_regression(lib, D, len(D_transfo), [i / 10, j / 10],2)))
+            # print('predict ',predict_regression(lib, D,len(D_transfo), [i / 10, j / 10]))
+
+    fig = plt.figure(figsize=plt.figaspect(0.5))
+    ax = fig.add_subplot(1, 2, 1, projection='3d')
+    ax.scatter(points_x, points_y, points_z)
+    ax.scatter(X[:, 0], X[:, 1], Y, c="orange", s=100)
+    plt.show()
+    plt.clf()
+
+    print('linear tricky 3d')
+
+def Non_Linear_Simple_3D(lib):
+    X = np.array([
+        [1, 0],
+        [0, 1],
+        [1, 1],
+        [0, 0],
+    ])
+    X_arr = X.tolist()
+    Y = np.array([
+        2,
+        1,
+        -2,
+        -1
+    ])
+    Y_arr = Y.tolist()
+
+    size = 2;
+
+    W = create_model(lib, size)
+    W_ptr = cast(W, POINTER(c_float))
+
+    W_transfo = []
+    for i in range(size + 1):
+        W_transfo.append(W_ptr[i])
+
+    D = train_regression_linear(lib, W, len(W_transfo), X.flatten(), len(X_arr), Y_arr, len(Y_arr), 1000, 0.1,
+                                len(X_arr), 2)
+    D_ptr = cast(D, POINTER(c_float))
+
+    D_transfo = []
+    for i in range(size):
+        D_transfo.append(W_ptr[i])
+
+    points_x = []
+    points_y = []
+    points_z = []
+
+    for i in range(0, 11):
+        for j in range(0, 11):
+            points_x.append(float(i / 10))
+            points_y.append(float(j / 10))
+            points_z.append(float(predict_regression(lib, D, len(D_transfo), [i / 10, j / 10],2)))
+            # print('predict ',predict_regression(lib, D,len(D_transfo), [i / 10, j / 10]))
+
+    fig = plt.figure(figsize=plt.figaspect(0.5))
+    ax = fig.add_subplot(1, 2, 1, projection='3d')
+    ax.scatter(points_x, points_y, points_z)
+    ax.scatter(X[:, 0], X[:, 1], Y, c="orange", s=100)
+    plt.show()
+    plt.clf()
+
+    print('non linear simple 3d')
 
 #################################################
 
@@ -459,6 +702,30 @@ def train_rosenblatt_linear(lib, model, model_size, X, Xlen, Y, Ylen, count, ste
     print('finish')
     return lib.train_rosenblatt_linear(model, model_size, X_one_dim, Y, count, step, len(X_one_dim))
 
+def train_regression_linear(lib, model, model_size, X, Xlen, Y, Ylen, count, step, size, dim):
+    print('train')
+    x_modif = [float(i) for i in X]
+
+    print(x_modif)
+    X = (len(X) * c_float)(*X)
+    Y = (c_float * Ylen)(*Y)
+    #
+    lib.train_regression_linear.argtypes = [POINTER(c_float), c_int, POINTER(
+        c_float), POINTER(c_float),c_int, c_int, c_float, c_int, c_int]
+
+    lib.train_regression_linear.restype = POINTER(c_float)
+    print('finish')
+    return lib.train_regression_linear(model, model_size, X, Y,len(Y), count, step, len(X), dim)
+
+def predict_regression(lib,model,size,value,dim):
+    inputs_float = [float(i) for i in value]
+    inputs_type = len(inputs_float) * c_float
+
+    lib.predict_regression.argtypes = [POINTER(c_float),c_int, inputs_type, c_int]
+
+    lib.predict_regression.restype = c_float
+
+    return lib.predict_regression(model,size, inputs_type(*inputs_float),dim)
 
 def affichage_avant_test(a, b, c, d, e, f, num):
     if (num == 2):
@@ -505,9 +772,18 @@ if __name__ == "__main__":
     lib = cdll.LoadLibrary(PATH_TO_SHARED_LIBRARY)
 
     # Cas_Test
-    # Linear_Simple_test(lib)
+    ##Classification
+    #Linear_Simple_test(lib)
     # Linear_Multiple_test(lib)
     # XOR_test(lib)
     # Cross_test(lib)
     # Linear_Multiple_3_test(lib)
-    Multi_Cross_test(lib)
+    # Multi_Cross_test(lib)
+
+    ##Regression
+    Linear_Simple_2D(lib)
+    Non_Linear_Simple_2D(lib)
+
+    #Linear_Simple_3D(lib)
+    #Linear_Tricky_3D(lib)
+    #Non_Linear_Simple_3D(lib)
