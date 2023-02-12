@@ -40,7 +40,7 @@ extern "C" float* create_model_linear(int size)
     return model;
 }
 
-extern "C" void saveModel(float* W, int W_size, char* Name) {
+extern "C" void saveModelLinear(float* W, int W_size, char* Name) {
 
     ofstream myfile(Name);
     if (myfile.is_open())
@@ -55,7 +55,7 @@ extern "C" void saveModel(float* W, int W_size, char* Name) {
     cout << "Save finish" << endl;
 }
 
-extern "C" void readModel(char* Name) {
+extern "C" void readModelLinear(char* Name) {
 
     string line;
     ifstream myfile(Name);
@@ -73,7 +73,7 @@ extern "C" void readModel(char* Name) {
     cout << "Read finish" << endl;
 }
 
-extern "C" float* loadModel(char* Name) {
+extern "C" float* loadModelLinear(char* Name) {
 
     string line;
     ifstream myfile(Name);

@@ -44,11 +44,11 @@ def Linear_Simple_test(lib):
 
     affichage_resultat(D_transfo_arr, X, Y, 2)
 
-    saveModel(lib, D, len(D_transfo),"linearsimple.txt")
-    readModel("linearsimple.txt")
+    saveModelLinear(lib, D, len(D_transfo),"linearsimple.txt")
+    readModelLinear("linearsimple.txt")
     print("linear simple")
 
-    L=loadModel("linearsimple.txt")
+    L=loadModelLinear("linearsimple.txt")
     print("test load affichage")
     L_ptr = cast(L, POINTER(c_float))
 
@@ -777,28 +777,28 @@ def affichage_resultat(model, points, classes, num):
     plt.show()
     plt.clf()
 
-def saveModel(lib,model,size,name):
+def saveModelLinear(lib,model,size,name):
 
-    lib.saveModel.argtypes = [POINTER(c_float), c_int, c_char_p]
-    lib.saveModel.restype = None
+    lib.saveModelLinear.argtypes = [POINTER(c_float), c_int, c_char_p]
+    lib.saveModelLinear.restype = None
     byte_string = name.encode('utf-8')
-    return lib.saveModel(model, size, byte_string)
+    return lib.saveModelLinear(model, size, byte_string)
 
-def readModel(name):
+def readModelLinear(name):
     print('value read :')
-    lib.readModel.argtypes = [c_char_p]
-    lib.readModel.restype = None
+    lib.readModelLinear.argtypes = [c_char_p]
+    lib.readModelLinear.restype = None
     byte_string = name.encode('utf-8')
 
-    return lib.readModel(byte_string)
+    return lib.readModelLinear(byte_string)
 
-def loadModel(name):
+def loadModelLinear(name):
     print('load value :')
-    lib.loadModel.argtypes = [c_char_p]
-    lib.loadModel.restype = POINTER(c_float)
+    lib.loadModelLinear.argtypes = [c_char_p]
+    lib.loadModelLinear.restype = POINTER(c_float)
     byte_string = name.encode('utf-8')
 
-    return lib.loadModel(byte_string)
+    return lib.loadModelLinear(byte_string)
 
 if __name__ == "__main__":
     # Load lib
