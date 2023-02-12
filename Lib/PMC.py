@@ -390,7 +390,8 @@ def saveModelPMC(lib, model, filename="pmcModel.txt"):
     tmp.append(cast(model['deltas'],c_void_p))
     tmp.append(cast(model['W'],c_void_p))
 
-
+    filename = "SavedModel/" + filename
+    
     model_void = (c_void_p * 6)(*tmp)
 
     byte_filename = filename.encode('utf-8')
@@ -474,6 +475,6 @@ if __name__ == "__main__":
     #runAllClassificationTest(lib)
     #runAllRegressionTest(lib)
 
-    testMultiCross(lib)
+    simpleTestLinearDataset(lib)
     
     

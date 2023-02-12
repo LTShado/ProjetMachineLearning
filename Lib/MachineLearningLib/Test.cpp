@@ -812,7 +812,6 @@ extern "C" MACHINELEARNINGLIB_API void **createModelPMCfromFile(char *filename) 
 }
 
 extern "C" MACHINELEARNINGLIB_API void saveModelPMC(void** model, char *filename) {
-  cout << "tests" << *((int*)model[1]);
     int* d = (int*) model[0];
     int* sizeNpl = (int*) model[1];
     int* maxN = (int*) model[2];
