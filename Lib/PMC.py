@@ -196,18 +196,101 @@ def testMultiCross(lib):
 
 
 ############# REGRESSION TEST #############
+
+def runAllRegressionTest(lib):
+    testLinearSimple2D(lib)
+    testNonLinearSimple2D(lib)
+    testLinearSimple3D(lib)
+    testLinearTricky3D(lib)
+    testNonLinearSimple3D(lib)
+
 def testLinearSimple2D(lib):
     print("start testLinearSimple2D")
     points = np.array([[1],[2]])
     classes = np.array([2,3])
 
-    pColor = 'blue'
-    cColor = lambda pred: 'black' if pred[0] >= 4 else 'white'
-
     model = createModelPMC(lib,[1, 1])
     trainPMC(lib, model, points, [[c] for c in classes], False, 0.01, 10000)
-    displayPredictRegression2D(lib, model, points, classes, False, pColor, cColor, 0.5)
+    displayPredictRegression2D(lib, model, points, classes, False, 0, 4)
     print("end testLinearSimple2D")
+
+def testNonLinearSimple2D(lib):
+    print("start testNonLinearSimple2D")
+    points = np.array([[1],[2],[3]])
+    classes = np.array([2,3,2.5])
+
+    pColor = 'blue'
+    cColor = 'black'
+
+    model = createModelPMC(lib,[1,4,1])
+    trainPMC(lib, model, points, [[c] for c in classes], False, 0.01, 10000)
+    displayPredictRegression2D(lib, model, points, classes, False, 0, 4)
+    print("end testNonLinearSimple2D")
+
+def testLinearSimple3D(lib):
+    print("start testLinearSimple3D")
+    points = np.array([
+        [1, 1],
+        [2, 2],
+        [3, 1]
+    ])
+    classes = np.array([
+        2,
+        3,
+        2.5
+    ])
+
+    pColor = 'blue'
+    cColor = 'black'
+
+    model = createModelPMC(lib,[2,1])
+    trainPMC(lib, model, points, [[c] for c in classes], False, 0.01, 10000)
+    displayPredictRegression3D(lib, model, points, classes, False, 0, 4)
+    print("end testLinearSimple3D")
+
+def testLinearTricky3D(lib):
+    print("start testLinearTricky3D")
+    points = np.array([
+        [1, 1],
+        [2, 2],
+        [3, 3]
+    ])
+    classes = np.array([
+        1,
+        2,
+        3
+    ])
+
+    pColor = 'blue'
+    cColor = 'black'
+
+    model = createModelPMC(lib,[2,1])
+    trainPMC(lib, model, points, [[c] for c in classes], False, 0.01, 10000)
+    displayPredictRegression3D(lib, model, points, classes, False, 0, 4)
+    print("end testLinearTricky3D")
+
+def testNonLinearSimple3D(lib):
+    print("start testNonLinearSimple3D")
+    points = np.array([
+        [1, 0],
+        [0, 1],
+        [1, 1],
+        [0, 0],
+    ])
+    classes = np.array([
+        2,
+        1,
+        -2,
+        -1
+    ])
+
+    pColor = 'blue'
+    cColor = 'black'
+
+    model = createModelPMC(lib,[2,2,1])
+    trainPMC(lib, model, points, [[c] for c in classes], False, 0.01, 10000)
+    displayPredictRegression3D(lib, model, points, classes, False, 0, 4)
+    print("end testNonLinearSimple3D")
 
 
 ################################ FUNCTIONS ################################
@@ -326,39 +409,52 @@ def displayPredictClassif(lib, model, xTrain, yTrain, isClassification, pColor, 
     plt.scatter(xTrain[:, 0], xTrain[:, 1], c=pointColors)
     plt.show()
 
-def displayPredictRegression2D(lib, model, xTrain, yTrain, isClassification, pColor, cColor, offset = 0):
-    test_points = []
-    test_colors = []
+def displayPredictRegression2D(lib, model, xTrain, yTrain, isClassification, start, end):
+    test_X = []
+    test_Y = []
     
-    for row in range(0, 300):
-        for col in range(0, 300):
-            p = np.array([col / 100 + offset, row / 100 + offset])
-            pred = predictPMC(lib,model, p, isClassification)
-            c = cColor(pred)
-            test_points.append(p)
-            test_colors.append(c)
+    for x in np.arange(start,end,0.1):
+        p = np.array([x])
+        pred = predictPMC(lib,model, p, isClassification)
+        test_X.append(x)
+        test_Y.append(pred[0])
 
-    pred = predictPMC(lib,model, xTrain, isClassification)
-    x = np.linspace(-2,2,num=100)
 
-    y = []
-    for i in range(len(x)):
-        y.append(x[i]*pred)
-
-    test_points = np.array(test_points)
-    test_colors = np.array(test_colors)
+    test_Y = np.array(test_Y)
 
     plt.figure()
     #plt.subplot(212)
-    plt.scatter(test_points[:, 0], test_points[:, 1], c=test_colors)
-    plt.scatter(xTrain, yTrain, c=pColor)
+    plt.scatter(xTrain, yTrain, color='blue')
+    plt.plot(test_X,test_Y, color='black')
+    plt.show()
+
+def displayPredictRegression3D(lib, model, xTrain, yTrain, isClassification, start, end):
+    test_X = []
+    test_Y = []
+    
+    for x in np.arange(start,end,0.1):
+        for z in np.arange(start,end,0.1):
+            p = np.array([x,z])
+            pred = predictPMC(lib,model, p, isClassification)
+            test_X.append([x,z])
+            test_Y.append(pred[0])
+
+    test_X = np.array(test_X)
+    test_Y = np.array(test_Y)
+
+    ax = plt.figure().add_subplot(projection='3d')
+    #plt.subplot(212)
+    
+    ax.scatter(xTrain[:,0],xTrain[:,1], yTrain, color='blue')
+    ax.scatter(test_X[:,0],test_X[:,1], test_Y, s=0.5, color='black')
     plt.show()
 
 if __name__ == "__main__":
     # load lib
     lib = cdll.LoadLibrary(PATH_TO_SHARED_LIBRARY)
     # call function
-    runAllSimpleTest(lib)
-    runAllClassificationTest(lib)
+    #runAllSimpleTest(lib)
+    #runAllClassificationTest(lib)
+    runAllRegressionTest(lib)
     
     
