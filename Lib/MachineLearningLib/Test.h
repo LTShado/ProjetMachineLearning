@@ -25,7 +25,21 @@ void destroy_array(float *arr, int arr_size);
 
 extern "C" MACHINELEARNINGLIB_API float* create_model_linear(int size);
 
+extern "C" MACHINELEARNINGLIB_API void saveModelLinear(float* W, int W_size, char* Name);
+extern "C" MACHINELEARNINGLIB_API void readModelLinear(char* Name);
+extern "C" MACHINELEARNINGLIB_API float* loadModelLinear(char* Name);
+
 extern "C" MACHINELEARNINGLIB_API float* train_rosenblatt_linear(float *W, int W_size, float *X, float *Y, int count, float step, int size);
+
+extern "C" MACHINELEARNINGLIB_API float* train_regression_linear(float* W, int W_size, float* X, float* Y, int Y_size, int count, float step, int X_flatten_size, int dim);
+
+float** TransposeMat(float** mat, int col, int row);
+float** DotMatDouble(float** mat1, int col1, int row1, float** mat2, int col2, int row2);
+float* DotMatSimple(float** mat1, int col1, int row1, float* mat2, int size);
+float** InverseMat(float** mat, int col, int row);
+float** AddMat(float** mat1, float** mat2, int size);
+
+extern "C" MACHINELEARNINGLIB_API float predict_regression(float* W,int W_size, float* value, int dim);
 
 extern "C" MACHINELEARNINGLIB_API int ReadArrayValue(float *arr);
 
@@ -40,3 +54,7 @@ void propagatePMC(float* inputs, bool isClassification, int* d, int sizeNpl, int
 extern "C" MACHINELEARNINGLIB_API float* predictPMC(float* inputs, bool isClassification, int* d, int sizeNpl, int maxN, float* X, float* W);
 
 extern "C" MACHINELEARNINGLIB_API void trainPMC(int sizeT, float* xTrain, int sizeDataXTrain, float* yTrain, int sizeDataYTrain, bool isClassification, float alpha, int nbIter, int* d, int sizeNpl, int maxN, float* X, float* deltas, float* W);
+
+extern "C" MACHINELEARNINGLIB_API void *createModelPMCfromFile(char *filename);
+
+extern "C" MACHINELEARNINGLIB_API void saveModelPMC(void* model);
