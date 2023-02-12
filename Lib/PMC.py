@@ -442,7 +442,7 @@ if __name__ == "__main__":
     # load lib
     lib = cdll.LoadLibrary(PATH_TO_SHARED_LIBRARY)
     # call function
-    #runAllSimpleTest(lib)
+    runAllSimpleTest(lib)
     #runAllClassificationTest(lib)
     #runAllRegressionTest(lib)
     
