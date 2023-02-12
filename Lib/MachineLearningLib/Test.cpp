@@ -4,6 +4,8 @@
 #include <list>
 #include <random>
 #include <iostream>
+#include <fstream>
+#include <string>
 
 using namespace std;
 
@@ -36,6 +38,73 @@ extern "C" float* create_model_linear(int size)
         model[i] = distribution(generator);
 
     return model;
+}
+
+extern "C" void saveModel(float* W, int W_size, char* Name) {
+
+    ofstream myfile(Name);
+    if (myfile.is_open())
+    {
+        for (int i = 0; i < W_size; i++) {
+            myfile << W[i] << "\n";
+        }
+        myfile.close();
+    }
+    else cout << "Unable to open file";
+
+    cout << "Save finish" << endl;
+}
+
+extern "C" void readModel(char* Name) {
+
+    string line;
+    ifstream myfile(Name);
+    if (myfile.is_open())
+    {
+        while (getline(myfile, line))
+        {
+            cout << line << '\n';
+        }
+        myfile.close();
+    }
+
+    else cout << "Unable to open file";
+
+    cout << "Read finish" << endl;
+}
+
+extern "C" float* loadModel(char* Name) {
+
+    string line;
+    ifstream myfile(Name);
+
+    int filesize = 0;
+    string value[10]= {""};
+
+    if (myfile.is_open())
+    {
+        while (getline(myfile, line))
+        {
+            //cout << stof(line) << '\n';
+            value[filesize] = line;
+            filesize++;
+        }
+        myfile.close();
+    }
+    else cout << "Unable to open file" << endl;
+    
+    float* W = new float[filesize];
+    int c = 0;
+
+
+    for (int i = 0; i < filesize; i++) {
+        W[i] = stof(value[i]);
+        cout << "W " << W[i] << endl;
+    }
+
+    cout << "Load finish" << endl;
+
+    return W;
 }
 
 extern "C" float* train_rosenblatt_linear(float *W, int W_size, float *X, float *Y, int count, float step, int X_flatten_size)

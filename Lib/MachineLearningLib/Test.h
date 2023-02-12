@@ -25,6 +25,10 @@ void destroy_array(float *arr, int arr_size);
 
 extern "C" MACHINELEARNINGLIB_API float* create_model_linear(int size);
 
+extern "C" MACHINELEARNINGLIB_API void saveModel(float* W, int W_size, char* Name);
+extern "C" MACHINELEARNINGLIB_API void readModel(char* Name);
+extern "C" MACHINELEARNINGLIB_API float* loadModel(char* Name);
+
 extern "C" MACHINELEARNINGLIB_API float* train_rosenblatt_linear(float *W, int W_size, float *X, float *Y, int count, float step, int size);
 
 extern "C" MACHINELEARNINGLIB_API float* train_regression_linear(float* W, int W_size, float* X, float* Y, int Y_size, int count, float step, int X_flatten_size, int dim);
