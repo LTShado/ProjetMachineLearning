@@ -29,6 +29,7 @@ def simpleTestLinearDataset(lib):
 
     model = createModelPMC(lib,[2, 1])
     trainPMC(lib, model, points, [[c] for c in classes], True)
+    saveModelPMC(lib, model)
     displayPredictClassif(lib, model, points, classes, True, pColor, cColor)
     print("end simpleLinear")
 
@@ -190,9 +191,10 @@ def testMultiCross(lib):
     pColor = pColor3
     cColor = cColor3
 
-    model = createModelPMC(lib,[2, 20, 20, 3])
+    model = createModelPMC(lib,[2, 30, 30, 3])
     trainPMC(lib, model, points, classes, True, 0.1, 1000000)
     displayPredictClassif(lib, model, points, classes, True, pColor, cColor, -1.5)
+    saveModelPMC(lib, model)
     print("end testMultiCross")
 
 
@@ -297,11 +299,13 @@ def createModelPMC(lib, npl):
     X = (c_float * (sizeNpl*maxN))()
     deltas = (c_float * (sizeNpl*maxN))()
     W = (c_float * (sizeNpl*maxN*maxN))()
+    sizeNpl = (c_int *1)(sizeNpl)
+    maxN = (c_int *1)(maxN)
 
     lib.createModelPMC.argtypes = [
         POINTER(c_int),   #npl
-        c_int,            #sizeNpl
-        c_int,            #maxN
+        POINTER(c_int),   #sizeNpl
+        POINTER(c_int),   #maxN
         POINTER(c_float), #X
         POINTER(c_float), #deltas
         POINTER(c_float)  #W
@@ -341,8 +345,8 @@ def trainPMC(lib, model, xTrain, yTrain, isClassification, alpha = 0.01, nbIter 
         c_float,          #alpha
         c_int,            #nbIter
         POINTER(c_int),   #d
-        c_int,            #sizeNpl
-        c_int,            #maxN
+        POINTER(c_int),   #sizeNpl
+        POINTER(c_int),   #maxN
         POINTER(c_float), #X
         POINTER(c_float), #deltas
         POINTER(c_float)  #W
@@ -364,8 +368,8 @@ def predictPMC(lib, model, inputs, isClassification):
         POINTER(c_float), #inputs
         c_bool,           #isClassification
         POINTER(c_int),   #d
-        c_int,            #sizeNpl
-        c_int,            #maxN
+        POINTER(c_int),   #sizeNpl
+        POINTER(c_int),   #maxN
         POINTER(c_float), #X
         POINTER(c_float)  #W
     ]
@@ -376,6 +380,30 @@ def predictPMC(lib, model, inputs, isClassification):
         model['d'],model['sizeNpl'],model['maxN'], model['X'], model['W']
         )
     return resArr
+
+def saveModelPMC(lib, model, filename="pmcModel.txt"):
+    tmp = []
+    tmp.append(cast(model['d'],c_void_p))
+    tmp.append(cast(model['sizeNpl'],c_void_p))
+    tmp.append(cast(model['maxN'],c_void_p))
+    tmp.append(cast(model['X'],c_void_p))
+    tmp.append(cast(model['deltas'],c_void_p))
+    tmp.append(cast(model['W'],c_void_p))
+
+
+    model_void = (c_void_p * 6)(*tmp)
+
+    byte_filename = filename.encode('utf-8')
+
+    lib.saveModelPMC.argtypes = [
+        POINTER(c_void_p), #model
+        c_char_p,          #filename
+    ]
+    lib.saveModelPMC.restype = None
+    lib.saveModelPMC(
+        model_void,
+        byte_filename
+        )
 
 def displayPredictClassif(lib, model, xTrain, yTrain, isClassification, pColor, cColor, offset = 0):
     test_points = []
@@ -442,8 +470,10 @@ if __name__ == "__main__":
     # load lib
     lib = cdll.LoadLibrary(PATH_TO_SHARED_LIBRARY)
     # call function
-    runAllSimpleTest(lib)
+    #runAllSimpleTest(lib)
     #runAllClassificationTest(lib)
     #runAllRegressionTest(lib)
+
+    testMultiCross(lib)
     
     
