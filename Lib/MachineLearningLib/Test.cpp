@@ -568,7 +568,7 @@ extern "C" int test()
 // PMC method
 
 // Init datas from pointers
-extern "C" void createModelPMC(int* npl, int sizeNpl, int maxN, float* X, float* deltas, float* W)
+extern "C" void createModelPMC(int* d, int sizeNpl, int maxN, float* X, float* deltas, float* W)
 {
     default_random_engine generator;
     uniform_real_distribution<float> distribution(-1, 1);
@@ -577,6 +577,18 @@ extern "C" void createModelPMC(int* npl, int sizeNpl, int maxN, float* X, float*
     //W = new float[sizeNpl * maxN * maxN];
     //X = new float[sizeNpl*maxN];
     //deltas = new float[sizeNpl*maxN];
+
+    // Complete init of array
+
+    for(int i =0;i<sizeNpl*maxN*maxN;i++){
+        W[i] = 0.f;
+    }
+
+    for(int i =0;i<sizeNpl*maxN;i++){
+        deltas[i] = 0.f;
+        X[i] = 0.f;
+    }
+    
     
     // Init W:
     
@@ -584,9 +596,9 @@ extern "C" void createModelPMC(int* npl, int sizeNpl, int maxN, float* X, float*
     {
         if (l == 0)
             continue;
-        for (int i = 0; i < npl[l - 1] + 1; i++)
+        for (int i = 0; i < d[l - 1] + 1; i++)
         {
-            for (int j = 0; j < npl[l] + 1; j++)
+            for (int j = 0; j < d[l] + 1; j++)
             {
                 W[l*maxN*maxN + i*maxN + j] = j == 0 ? 0.f : distribution(generator);
             }
@@ -596,7 +608,7 @@ extern "C" void createModelPMC(int* npl, int sizeNpl, int maxN, float* X, float*
     // Init X and deltas:
     for (int l = 0; l < sizeNpl; l++)
     {
-        for (int j = 0; j < npl[l] + 1; j++)
+        for (int j = 0; j < d[l] + 1; j++)
         {
             deltas[l*maxN + j] = 0.f;
             X[l*maxN + j] = j == 0 ? 1.0f : 0.f;
@@ -674,9 +686,9 @@ extern "C" void trainPMC(int sizeT, float *xTrain, int sizeDataXTrain, float *yT
 
         for (int l = 1; l < sizeNpl; ++l)
         {
-            for (int i = 0; i < d[l - 1]+1; ++i)
+            for (int i = 0; i < d[l - 1] + 1; ++i)
             {
-                for (int j = 1; j <= d[l]; ++j)
+                for (int j = 1; j < d[l] + 1; ++j)
                     W[l*maxN*maxN + i*maxN + j] += -alpha * X[(l - 1)*maxN + i] * deltas[l*maxN + j];
             }
         }

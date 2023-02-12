@@ -51,7 +51,7 @@ def simpleTestXOR(lib):
     cColor = lambda pred: 'lightcyan' if pred[0] >= 0 else 'pink'
 
     model = createModelPMC(lib,[2, 2, 1])
-    trainPMC(lib, model, points, [[c] for c in classes], True, 0.01, 100000)
+    trainPMC(lib, model, points, [[c] for c in classes], True, 0.1, 100000)
     displayPredictClassif(lib, model, points, classes, True, pColor, cColor,-1)
     print("end simpleXOR")
 
@@ -101,7 +101,7 @@ def testXOR(lib):
     cColor = lambda pred: 'lightcyan' if pred[0] >= 0 else 'pink'
 
     model = createModelPMC(lib,[2, 2, 1])
-    trainPMC(lib, model, points, [[c] for c in classes], True, 0.01, 10000)
+    trainPMC(lib, model, points, [[c] for c in classes], True, 0.05, 10000)
     displayPredictClassif(lib, model, points, classes, True, pColor, cColor, -1)
     print("end testXOR")
 
@@ -143,11 +143,11 @@ def testMultiLinear3Classes(lib):
 
     def cColor3(pred):
         m = max(pred[0:3])
-        if pred[0]>=0.4 and pred[0]==m:
+        if pred[0]>=0 and pred[0]==m:
             return 'lightcyan'
-        elif pred[1]>=0.4 and pred[1]==m:
+        elif pred[1]>=0 and pred[1]==m:
             return 'pink'
-        elif pred[2]>=0.4 and pred[2]==m:
+        elif pred[2]>=0 and pred[2]==m:
             return 'lightgreen'
         else:
             return 'white'
@@ -190,8 +190,8 @@ def testMultiCross(lib):
     pColor = pColor3
     cColor = cColor3
 
-    model = createModelPMC(lib,[2, 26, 26, 3])
-    trainPMC(lib, model, points, classes, True, 0.01, 1000000)
+    model = createModelPMC(lib,[2, 20, 20, 3])
+    trainPMC(lib, model, points, classes, True, 0.1, 1000000)
     displayPredictClassif(lib, model, points, classes, True, pColor, cColor, -1.5)
     print("end testMultiCross")
 
@@ -220,9 +220,6 @@ def testNonLinearSimple2D(lib):
     points = np.array([[1],[2],[3]])
     classes = np.array([2,3,2.5])
 
-    pColor = 'blue'
-    cColor = 'black'
-
     model = createModelPMC(lib,[1,4,1])
     trainPMC(lib, model, points, [[c] for c in classes], False, 0.01, 10000)
     displayPredictRegression2D(lib, model, points, classes, False, 0, 4)
@@ -241,9 +238,6 @@ def testLinearSimple3D(lib):
         2.5
     ])
 
-    pColor = 'blue'
-    cColor = 'black'
-
     model = createModelPMC(lib,[2,1])
     trainPMC(lib, model, points, [[c] for c in classes], False, 0.01, 10000)
     displayPredictRegression3D(lib, model, points, classes, False, 0, 4)
@@ -261,9 +255,6 @@ def testLinearTricky3D(lib):
         2,
         3
     ])
-
-    pColor = 'blue'
-    cColor = 'black'
 
     model = createModelPMC(lib,[2,1])
     trainPMC(lib, model, points, [[c] for c in classes], False, 0.01, 10000)
@@ -284,9 +275,6 @@ def testNonLinearSimple3D(lib):
         -2,
         -1
     ])
-
-    pColor = 'blue'
-    cColor = 'black'
 
     model = createModelPMC(lib,[2,2,1])
     trainPMC(lib, model, points, [[c] for c in classes], False, 0.01, 10000)
@@ -456,6 +444,6 @@ if __name__ == "__main__":
     # call function
     #runAllSimpleTest(lib)
     #runAllClassificationTest(lib)
-    runAllRegressionTest(lib)
+    #runAllRegressionTest(lib)
     
     

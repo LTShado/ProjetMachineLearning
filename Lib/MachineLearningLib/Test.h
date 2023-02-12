@@ -50,3 +50,7 @@ void propagatePMC(float* inputs, bool isClassification, int* d, int sizeNpl, int
 extern "C" MACHINELEARNINGLIB_API float* predictPMC(float* inputs, bool isClassification, int* d, int sizeNpl, int maxN, float* X, float* W);
 
 extern "C" MACHINELEARNINGLIB_API void trainPMC(int sizeT, float* xTrain, int sizeDataXTrain, float* yTrain, int sizeDataYTrain, bool isClassification, float alpha, int nbIter, int* d, int sizeNpl, int maxN, float* X, float* deltas, float* W);
+
+extern "C" MACHINELEARNINGLIB_API void *createModelPMCfromFile(char *filename);
+
+extern "C" MACHINELEARNINGLIB_API void saveModelPMC(void* model);
