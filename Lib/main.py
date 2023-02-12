@@ -44,7 +44,19 @@ def Linear_Simple_test(lib):
 
     affichage_resultat(D_transfo_arr, X, Y, 2)
 
+    saveModelLinear(lib, D, len(D_transfo),"linearsimple.txt")
+    readModelLinear("linearsimple.txt")
     print("linear simple")
+
+    L=loadModelLinear("linearsimple.txt")
+    print("test load affichage")
+    L_ptr = cast(L, POINTER(c_float))
+
+    L_transfo = []
+    for i in range(size + 1):
+        L_transfo.append(L_ptr[i])
+    L_transfo_arr = np.array(L_transfo)
+    affichage_resultat(L_transfo_arr, X, Y, 2)
 
 
 def Linear_Multiple_test(lib):
@@ -669,7 +681,6 @@ def create_model(lib, size):
 
 
 def ReadArray(lib, arr):
-
     arr_t = (c_float * len(arr))(*arr)
 
     lib.ReadArrayValue.argtypes = [POINTER(c_float)]
@@ -740,7 +751,7 @@ def affichage_avant_test(a, b, c, d, e, f, num):
 
 
 def affichage_resultat(model, points, classes, num):
-    print('resultat')
+    print('affichage')
     if (num == 2):
         colors = ['blue' if c == 1 else 'red' for c in classes]
         test_points = []
@@ -766,6 +777,28 @@ def affichage_resultat(model, points, classes, num):
     plt.show()
     plt.clf()
 
+def saveModelLinear(lib,model,size,name):
+
+    lib.saveModelLinear.argtypes = [POINTER(c_float), c_int, c_char_p]
+    lib.saveModelLinear.restype = None
+    byte_string = name.encode('utf-8')
+    return lib.saveModelLinear(model, size, byte_string)
+
+def readModelLinear(name):
+    print('value read :')
+    lib.readModelLinear.argtypes = [c_char_p]
+    lib.readModelLinear.restype = None
+    byte_string = name.encode('utf-8')
+
+    return lib.readModelLinear(byte_string)
+
+def loadModelLinear(name):
+    print('load value :')
+    lib.loadModelLinear.argtypes = [c_char_p]
+    lib.loadModelLinear.restype = POINTER(c_float)
+    byte_string = name.encode('utf-8')
+
+    return lib.loadModelLinear(byte_string)
 
 if __name__ == "__main__":
     # Load lib
@@ -773,7 +806,7 @@ if __name__ == "__main__":
 
     # Cas_Test
     ##Classification
-    #Linear_Simple_test(lib)
+    Linear_Simple_test(lib)
     # Linear_Multiple_test(lib)
     # XOR_test(lib)
     # Cross_test(lib)
@@ -781,8 +814,8 @@ if __name__ == "__main__":
     # Multi_Cross_test(lib)
 
     ##Regression
-    Linear_Simple_2D(lib)
-    Non_Linear_Simple_2D(lib)
+    #Linear_Simple_2D(lib)
+    #Non_Linear_Simple_2D(lib)
 
     #Linear_Simple_3D(lib)
     #Linear_Tricky_3D(lib)
