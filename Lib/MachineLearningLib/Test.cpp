@@ -4,6 +4,7 @@
 #include <list>
 #include <random>
 #include <iostream>
+#include <sstream>
 #include <fstream>
 #include <string>
 
@@ -639,8 +640,8 @@ extern "C" int test()
 
 /* Init datas from pointers
 // model is an array of pointer
-// model[0] = int* d[]: node per layer, array of size sizeNpl
-// model[1] = int* sizeNpl: number of layer
+// model[0] = int* sizeNpl: number of layer
+// model[1] = int* d[]: node per layer, array of size sizeNpl
 // model[2] = int* maxN: max number of node on a layer
 // model[3] = float* X[]: array of size sizeNpl*maxN
 // model[4] = float* deltas[]: array of size sizeNpl*maxN
@@ -660,11 +661,11 @@ extern "C" void createModelPMC(int* d, int* p_sizeNpl, int* p_maxN, float* X, fl
 
     // Complete init of array
 
-    for(int i =0;i<sizeNpl*maxN*maxN;i++){
+    for(int i =0;i<sizeNpl*maxN*maxN;++i){
         W[i] = 0.f;
     }
 
-    for(int i =0;i<sizeNpl*maxN;i++){
+    for(int i =0;i<sizeNpl*maxN;++i){
         deltas[i] = 0.f;
         X[i] = 0.f;
     }
@@ -672,11 +673,11 @@ extern "C" void createModelPMC(int* d, int* p_sizeNpl, int* p_maxN, float* X, fl
     
     // Init W:
     
-    for (int l = 1; l < sizeNpl; l++)
+    for (int l = 1; l < sizeNpl; ++l)
     {
-        for (int i = 0; i < d[l - 1] + 1; i++)
+        for (int i = 0; i < d[l - 1] + 1; ++i)
         {
-            for (int j = 0; j < d[l] + 1; j++)
+            for (int j = 0; j < d[l] + 1; ++j)
             {
                 W[l*maxN*maxN + i*maxN + j] = j == 0 ? 0.f : distribution(generator);
             }
@@ -684,9 +685,9 @@ extern "C" void createModelPMC(int* d, int* p_sizeNpl, int* p_maxN, float* X, fl
     }
 
     // Init X and deltas:
-    for (int l = 0; l < sizeNpl; l++)
+    for (int l = 0; l < sizeNpl; ++l)
     {
-        for (int j = 0; j < d[l] + 1; j++)
+        for (int j = 0; j < d[l] + 1; ++j)
         {
             deltas[l*maxN + j] = 0.f;
             X[l*maxN + j] = j == 0 ? 1.0f : 0.f;
@@ -700,15 +701,15 @@ void propagatePMC(float *inputs, bool isClassification, int *d, int* p_sizeNpl, 
   int sizeNpl = *p_sizeNpl;
   int maxN = *p_maxN;
   int L = sizeNpl - 1;
-    for (int j = 1; j < d[0] + 1; j++)
+    for (int j = 1; j < d[0] + 1; ++j)
         X[0*maxN + j] = inputs[j - 1];
 
-    for (int l = 1; l < sizeNpl; l++)
+    for (int l = 1; l < sizeNpl; ++l)
     {
-        for (int j = 1; j < d[l] + 1; j++)
+        for (int j = 1; j < d[l] + 1; ++j)
         {
             float total = 0.f;
-            for (int i = 0; i < d[l - 1] + 1; i++)
+            for (int i = 0; i < d[l - 1] + 1; ++i)
                 total += W[l*maxN*maxN +i*maxN +j] * X[(l-1)*maxN + i];
 
             X[l*maxN + j] = total;
@@ -780,40 +781,124 @@ extern "C" void trainPMC(int sizeT, float *xTrain, int sizeDataXTrain, float *yT
     }
 }
 
-extern "C" MACHINELEARNINGLIB_API void **createModelPMCfromFile(char *filename) {
-  void** model = nullptr;
-  string line;
-  ifstream myfile(filename);
+extern "C" MACHINELEARNINGLIB_API void **loadModelPMC(char *filename) {
+  void** model = new void*[6];
+  int * sizeNpl = new int();
+  int *d = nullptr;
+  int *maxN = new int();
+  float *X = nullptr;
+  float* deltas = nullptr;
+  float *W = nullptr;
 
-  int filesize = 0;
-  string value[10] = {""};
+  string line, seq, val;
+  ifstream myfile(filename);
 
   if (myfile.is_open()) {
     while (getline(myfile, line)) {
-      // cout << stof(line) << '\n';
-      value[filesize] = line;
-      filesize++;
+      // load sizeNpl
+      if (line == "#sizeNpl") {
+        cout <<  endl << "found sizeNql" << endl;
+        getline(myfile, val);
+        *sizeNpl = stoi(val);
+      }
+
+      // load d
+      if (line == "#d") {
+        cout << endl << "found d" << endl;
+        d = new int[*sizeNpl];
+        getline(myfile, line);
+        stringstream ss(line);
+        for (int i = 0; i < *sizeNpl; ++i) {
+          getline(ss, val, ',');
+          d[i] = stoi(val);
+        }
+      }
+
+      // load maxN
+      if (line == "#maxN") {
+        cout << endl << "found maxN" << endl;
+        d = new int[*sizeNpl];
+        getline(myfile, val);
+        *maxN = stoi(val);
+      }
+
+      // load X
+      if (line == "#X") {
+        cout << endl << "found X" << endl;
+        X = new float[(*sizeNpl) * (*maxN)];
+        for (int i = 0; i < (*sizeNpl) * (*maxN); ++i)
+          X[i] = 0.f;
+        
+        
+        for (int l = 0; l < (*sizeNpl); ++l) {
+          getline(myfile, line);
+          stringstream ss(line);
+          for (int j = 0; j < d[l] + 1; ++j) {
+            getline(ss, val, ',');
+            X[l * (*maxN) + j] = stof(val);
+          }
+        }
+      }
+
+      // load deltas
+      if (line == "#deltas") {
+        cout << endl << "found deltas" << endl;
+        deltas = new float[(*sizeNpl) * (*maxN)];
+        for (int i = 0; i < (*sizeNpl) * (*maxN); ++i)
+          deltas[i] = 0.f;
+
+        for (int l = 0; l < (*sizeNpl); ++l) {
+          getline(myfile, line);
+          stringstream ss(line);
+          for (int j = 0; j < d[l] + 1; ++j) {
+            getline(ss, val, ',');
+            deltas[l * (*maxN) + j] = stof(val);
+          }
+        }
+      }
+
+      // load W
+      if (line == "#W") {
+        cout << endl << "found W" << endl;
+        W = new float[(*sizeNpl) * (*maxN) * (*maxN)];
+        for (int i = 0; i < (*sizeNpl) * (*maxN) * (*maxN); ++i)
+          W[i] = 0.f;
+
+        for (int l = 0; l < (*sizeNpl); ++l) {
+          getline(myfile, line);
+          stringstream ss(line);
+          for (int i = 0; i < d[l - 1] + 1; ++i) {
+            getline(ss, seq, ';');
+            stringstream ss2(seq);
+            for (int j = 0; j < d[l] + 1; ++j) {
+              getline(ss2, val, ',');
+              W[l * (*maxN) * (*maxN) + i * (*maxN) + j] = stof(val);
+            }
+          }
+        }
+      }
     }
     myfile.close();
+    model[0] = (void *)sizeNpl;
+    model[1] = (void *)d;
+    model[2] = (void *)maxN;
+    model[3] = (void *)X;
+    model[4] = (void *)deltas;
+    model[5] = (void *)W;
+
+    cout << "Load finish" << endl;
+
   } else
-    cout << "Unable to open file" << endl;
+    cout << "Unable to open file, failed to load model" << endl;
 
-  float *W = new float[filesize];
-  int c = 0;
-
-  for (int i = 0; i < filesize; i++) {
-    W[i] = stof(value[i]);
-    cout << "W " << W[i] << endl;
-  }
-
-  cout << "Load finish" << endl;
+  
 
   return model;
 }
 
 extern "C" MACHINELEARNINGLIB_API void saveModelPMC(void** model, char *filename) {
-    int* d = (int*) model[0];
-    int* sizeNpl = (int*) model[1];
+    int *sizeNpl = (int *)model[0];
+    int* d = (int*) model[1];
     int* maxN = (int*) model[2];
     float* X = (float*) model[3];
     float* deltas = (float*) model[4];
@@ -822,18 +907,19 @@ extern "C" MACHINELEARNINGLIB_API void saveModelPMC(void** model, char *filename
   ofstream myfile(filename, ofstream::out | ofstream::trunc);
   if (myfile.is_open()) {
 
+    // save sizeNpl
+    myfile << "#sizeNpl"
+           << "\n";
+    myfile << *sizeNpl << "\n";
+
     // save d
     myfile << "#d" << "\n";
-    for (int i = 0; i < *sizeNpl; i++) {
+    for (int i = 0; i < *sizeNpl; ++i) {
       myfile << d[i];
       if (i != *sizeNpl - 1)
         myfile << ",";
     }
     myfile << "\n";
-
-    // save sizeNpl
-    myfile << "#sizeNpl" << "\n";
-    myfile << *sizeNpl << "\n";
 
     // save maxN
     myfile << "#maxN" << "\n";
@@ -841,8 +927,8 @@ extern "C" MACHINELEARNINGLIB_API void saveModelPMC(void** model, char *filename
 
     // save X
     myfile << "#X" << "\n";
-    for (int l = 0; l < (*sizeNpl); l++) {
-      for (int j = 0; j < d[l] + 1; j++) {
+    for (int l = 0; l < (*sizeNpl); ++l) {
+      for (int j = 0; j < d[l] + 1; ++j) {
         myfile << X[l * (*maxN) + j];
         if (j != d[l]) myfile << ",";
       }
@@ -851,8 +937,8 @@ extern "C" MACHINELEARNINGLIB_API void saveModelPMC(void** model, char *filename
 
     // save deltas
     myfile << "#deltas" << "\n";
-    for (int l = 0; l < (*sizeNpl); l++) {
-      for (int j = 0; j < d[l] + 1; j++) {
+    for (int l = 0; l < (*sizeNpl); ++l) {
+      for (int j = 0; j < d[l] + 1; ++j) {
         myfile << deltas[l * (*maxN) + j];
         if (j != d[l])
           myfile << ",";
@@ -862,11 +948,11 @@ extern "C" MACHINELEARNINGLIB_API void saveModelPMC(void** model, char *filename
 
     // save W
     myfile << "#W" << "\n";
-    for (int l = 0; l < (*sizeNpl); l++) {
+    for (int l = 0; l < (*sizeNpl); ++l) {
       if (l == 0)
         continue;
-      for (int i = 0; i < d[l - 1] + 1; i++) {
-        for (int j = 0; j < d[l] + 1; j++) {
+      for (int i = 0; i < d[l - 1] + 1; ++i) {
+        for (int j = 0; j < d[l] + 1; ++j) {
           myfile << W[l * (*maxN) * (*maxN) + i * (*maxN) + j];
           if (j != d[l])myfile << ",";
         }
@@ -877,9 +963,10 @@ extern "C" MACHINELEARNINGLIB_API void saveModelPMC(void** model, char *filename
     }
 
     myfile.close();
+    cout << "Model saved" << endl;
 
   } else
-    cout << "Unable to create/open file, failed to save";
+    cout << "Unable to create/open file, failed to save model";
 
-  cout << "Model saved" << endl;
+  
 }

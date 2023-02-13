@@ -30,6 +30,7 @@ def simpleTestLinearDataset(lib):
     model = createModelPMC(lib,[2, 1])
     trainPMC(lib, model, points, [[c] for c in classes], True)
     saveModelPMC(lib, model)
+    loadedModel = loadModelPMC(lib)
     displayPredictClassif(lib, model, points, classes, True, pColor, cColor)
     print("end simpleLinear")
 
@@ -383,15 +384,15 @@ def predictPMC(lib, model, inputs, isClassification):
 
 def saveModelPMC(lib, model, filename="pmcModel.txt"):
     tmp = []
-    tmp.append(cast(model['d'],c_void_p))
     tmp.append(cast(model['sizeNpl'],c_void_p))
+    tmp.append(cast(model['d'],c_void_p))
     tmp.append(cast(model['maxN'],c_void_p))
     tmp.append(cast(model['X'],c_void_p))
     tmp.append(cast(model['deltas'],c_void_p))
     tmp.append(cast(model['W'],c_void_p))
 
     filename = "SavedModel/" + filename
-    
+
     model_void = (c_void_p * 6)(*tmp)
 
     byte_filename = filename.encode('utf-8')
@@ -405,6 +406,19 @@ def saveModelPMC(lib, model, filename="pmcModel.txt"):
         model_void,
         byte_filename
         )
+
+def loadModelPMC(lib, filename="pmcModel.txt"):
+    filename = "SavedModel/" + filename
+    byte_filename = filename.encode('utf-8')
+
+    lib.loadModelPMC.argtypes = [
+        c_char_p,          #filename
+    ]
+    lib.loadModelPMC.restype = POINTER(c_void_p)
+    model_void = lib.loadModelPMC(
+        byte_filename
+        )
+    return model_void
 
 def displayPredictClassif(lib, model, xTrain, yTrain, isClassification, pColor, cColor, offset = 0):
     test_points = []

@@ -1,6 +1,6 @@
 ﻿  Test.cpp
-C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(23,18): warning C4244: '=' : conversion de 'int' en 'float', perte possible de données
-C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(203,46): warning C4305: '=' : troncation de 'double' à 'float'
-C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(633,11): warning C4244: 'initialisation' : conversion de 'float' en 'int', perte possible de données
-C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(281): warning C4715: 'train_regression_linear' : les chemins de contrôle ne retournent pas tous une valeur
+C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(24,18): warning C4244: '=' : conversion de 'int' en 'float', perte possible de données
+C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(204,46): warning C4305: '=' : troncation de 'double' à 'float'
+C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(634,11): warning C4244: 'initialisation' : conversion de 'float' en 'int', perte possible de données
+C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\Test.cpp(282): warning C4715: 'train_regression_linear' : les chemins de contrôle ne retournent pas tous une valeur
   MachineLearningLib.vcxproj -> C:\Users\MATHY\Documents\Projet\5A\Machine learning\ProjetMachineLearning\Lib\MachineLearningLib\x64\Debug\MachineLearningLib.dll
