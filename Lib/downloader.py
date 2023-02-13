@@ -2,8 +2,7 @@ import os
 import shutil
 import requests
 
-os.mkdir("dataset")
-states = ["coree", "france", "usa"]
+states = ["brésil", "france", "portugal"]
 
 for state in states:
     path = os.path.join("dataset", state)
@@ -18,9 +17,9 @@ for state in states:
         except Exception:
             pass
         if res.status_code == 200:
-            count += 1
             try:
                 with open(path + "/" + str(count) + ".jpg", 'wb') as f:
                     shutil.copyfileobj(res.raw, f)
+                    count += 1
             except Exception:
                 pass

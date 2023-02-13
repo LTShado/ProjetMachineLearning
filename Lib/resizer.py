@@ -1,7 +1,7 @@
 import os
 from PIL import Image
 
-states = ["france", "usa", "coree"]
+states = ["france", "brésil", "portugal"]
 
 for state in states:
     count = 1
@@ -10,7 +10,7 @@ for state in states:
         if os.path.isfile(f):
             try:
                 image = Image.open(f)
-                res = image.resize((120, 80))
+                res = image.resize((32, 32))
                 res.save(f)
             except Exception:
                 pass
