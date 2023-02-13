@@ -29,7 +29,13 @@ def simpleTestLinearDataset(lib):
 
     model = createModelPMC(lib,[2, 1])
     trainPMC(lib, model, points, [[c] for c in classes], True)
+    saveModelPMC(lib, model)
+    
     displayPredictClassif(lib, model, points, classes, True, pColor, cColor)
+    loadedModel = loadModelPMC(lib)
+    saveModelPMC(lib, loadedModel, "copyModel.txt")
+    trainPMC(lib, loadedModel, points, [[c] for c in classes], True)
+    displayPredictClassif(lib, loadedModel, points, classes, True, pColor, cColor)
     print("end simpleLinear")
 
 def simpleTestXOR(lib):
@@ -190,9 +196,13 @@ def testMultiCross(lib):
     pColor = pColor3
     cColor = cColor3
 
-    model = createModelPMC(lib,[2, 20, 20, 3])
+    model = createModelPMC(lib,[2, 30, 30, 3])
     trainPMC(lib, model, points, classes, True, 0.1, 1000000)
     displayPredictClassif(lib, model, points, classes, True, pColor, cColor, -1.5)
+    #saveModelPMC(lib,model,"pmcCrossSuccess.txt")
+    loadedModel = loadModelPMC(lib, "pmcCrossSuccess.txt")
+    displayPredictClassif(lib, loadedModel, points, classes, True, pColor, cColor, -1.5)
+
     print("end testMultiCross")
 
 
@@ -289,28 +299,17 @@ def test(lib):
     lib.test.restype = c_int
     return lib.test()
 
-def createModelPMC(lib, npl):
-
-    sizeNpl = len(npl)
-    maxN = max(npl) + 1
-    d = (c_int * len(npl))(* npl)    
-    X = (c_float * (sizeNpl*maxN))()
-    deltas = (c_float * (sizeNpl*maxN))()
-    W = (c_float * (sizeNpl*maxN*maxN))()
+def createModelPMC(lib, _npl):
+    npl = (c_int * len(_npl))(* _npl)    
+    sizeNpl = c_int(len(npl))
 
     lib.createModelPMC.argtypes = [
         POINTER(c_int),   #npl
-        c_int,            #sizeNpl
-        c_int,            #maxN
-        POINTER(c_float), #X
-        POINTER(c_float), #deltas
-        POINTER(c_float)  #W
+        c_int,   #sizeNpl
     ]
-    lib.createModelPMC.restype = None
+    lib.createModelPMC.restype = POINTER(c_void_p)
 
-    lib.createModelPMC(d, sizeNpl, maxN, X, deltas, W)
-    resultArray = {"d":d, "sizeNpl":sizeNpl, "maxN":maxN, "X":X, "deltas":deltas, "W":W}
-    return resultArray
+    return lib.createModelPMC(npl, sizeNpl)
 
 def trainPMC(lib, model, xTrain, yTrain, isClassification, alpha = 0.01, nbIter = 1000):
     print('train')
@@ -340,19 +339,14 @@ def trainPMC(lib, model, xTrain, yTrain, isClassification, alpha = 0.01, nbIter 
         c_bool,           #isClassification
         c_float,          #alpha
         c_int,            #nbIter
-        POINTER(c_int),   #d
-        c_int,            #sizeNpl
-        c_int,            #maxN
-        POINTER(c_float), #X
-        POINTER(c_float), #deltas
-        POINTER(c_float)  #W
+        POINTER(c_void_p) #model
     ]
 
     lib.trainPMC.restype = None
     lib.trainPMC(
         sizeT,xTrainFlat,sizeDataXTrain,yTrainFlat,sizeDataYTrain,
         isClassification, alpha, nbIter,
-        model['d'],model['sizeNpl'],model['maxN'], model['X'], model['deltas'], model['W']
+        model
         )
 
     print('finish')
@@ -363,19 +357,36 @@ def predictPMC(lib, model, inputs, isClassification):
     lib.predictPMC.argtypes = [
         POINTER(c_float), #inputs
         c_bool,           #isClassification
-        POINTER(c_int),   #d
-        c_int,            #sizeNpl
-        c_int,            #maxN
-        POINTER(c_float), #X
-        POINTER(c_float)  #W
+        POINTER(c_void_p) #model
     ]
     lib.predictPMC.restype = POINTER(c_float)
-    resArr = lib.predictPMC(
-        inputs,
-        isClassification,
-        model['d'],model['sizeNpl'],model['maxN'], model['X'], model['W']
-        )
+    resArr = lib.predictPMC(inputs,isClassification,model)
     return resArr
+
+def saveModelPMC(lib, model, filename="pmcModel.txt"):
+    filename = "SavedModel/" + filename
+    byte_filename = filename.encode('utf-8')
+
+    lib.saveModelPMC.argtypes = [
+        POINTER(c_void_p), #model
+        c_char_p,          #filename
+    ]
+    lib.saveModelPMC.restype = None
+    lib.saveModelPMC(
+        model,
+        byte_filename
+        )
+
+def loadModelPMC(lib, filename="pmcModel.txt"):
+    filename = "SavedModel/" + filename
+    byte_filename = filename.encode('utf-8')
+
+    lib.loadModelPMC.argtypes = [
+        c_char_p,          #filename
+    ]
+    lib.loadModelPMC.restype = POINTER(c_void_p)
+    model = lib.loadModelPMC(byte_filename)
+    return model
 
 def displayPredictClassif(lib, model, xTrain, yTrain, isClassification, pColor, cColor, offset = 0):
     test_points = []
@@ -443,7 +454,7 @@ if __name__ == "__main__":
     lib = cdll.LoadLibrary(PATH_TO_SHARED_LIBRARY)
     # call function
     runAllSimpleTest(lib)
-    #runAllClassificationTest(lib)
-    #runAllRegressionTest(lib)
+    runAllClassificationTest(lib)
+    runAllRegressionTest(lib)
     
     
