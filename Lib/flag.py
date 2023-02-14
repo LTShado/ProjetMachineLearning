@@ -19,44 +19,44 @@ def getAllImagesPath():
         paths.append(file)
         #print (file)
     return paths
-def flagClassification(lib):
+
+def flagClassificationTraining(lib):
     print("start flagClassification")
 
     nbImInTraining = 20
 
     path_allImages = getAllImagesPath()
-    imagesForTraining = np.random.choice(path_allImages,nbImInTraining)
-
-    flagImages = []
-    flagCountries = []
-
-    for file  in imagesForTraining:
-        #print(file)
-        im = Image.open(file)
-        im = im.resize((16,16),resample=1)
-
-        im = list(im.getdata())
-        im = [x for sets in im for x in sets]
-        
-        #print(im)
-        flagImages.append(im)
-        #print(flagImages[0])
-
-        if path_Brasil in file:
-            flagCountries.append([1,0,0])
-        elif path_France in file:
-            flagCountries.append([0,1,0])
-        elif path_Portugal in file:
-            flagCountries.append([0,0,1])
-
-    flagImages = np.array(flagImages)
-    flagCountries = np.array(flagCountries)
-
-    print(len(flagImages[0]))
-    #print(flagCountries[0])
-    
     model = createModelPMC(lib,[768,100,100,100,3])
-    trainPMC(lib, model, flagImages, flagCountries, True, 0.1, 1000)
+    for i in range(20):
+        
+        imagesForTraining = np.random.choice(path_allImages,nbImInTraining)
+
+        flagImages = []
+        flagCountries = []
+
+        for file  in imagesForTraining:
+            im = Image.open(file)
+            im = im.resize((16,16),resample=1)
+
+            im = list(im.getdata())
+            im = [x for sets in im for x in sets]
+            
+            flagImages.append(im)
+
+            if path_Brasil in file:
+                flagCountries.append([1,0,0])
+            elif path_France in file:
+                flagCountries.append([0,1,0])
+            elif path_Portugal in file:
+                flagCountries.append([0,0,1])
+
+        flagImages = np.array(flagImages)
+        flagCountries = np.array(flagCountries)
+    
+    
+        trainPMC(lib, model, flagImages, flagCountries, True, 0.1, 10000)
+        if i%5 == 0:
+            saveModelPMC(lib,model, "flagClassif.txt")
     saveModelPMC(lib,model, "flagClassif.txt")
     print("end flagClassification")
 
@@ -64,14 +64,15 @@ def imageRecognition(lib,model, filename):
     im = Image.open("Lib/dataset/testFlag/"+filename)
     im.show()
     im = im.resize((16,16),resample=1)
-    im.show()
+    #im.show()
 
     im = list(im.getdata())
     im = [x for sets in im for x in sets]
 
     p = np.array(im)
-    print(len(p),p[0])
     pred = predictPMC(lib,model, p, True)
+
+    print(pred[:3])
     res =""
     m = max(pred[0:3])
     if pred[0]>=0 and pred[0]==m:
@@ -86,6 +87,8 @@ def imageRecognition(lib,model, filename):
 if __name__ == "__main__":
     lib = cdll.LoadLibrary(PATH_TO_SHARED_LIBRARY)
 
-    flagClassification(lib)
+    flagClassificationTraining(lib)
     loadedModel = loadModelPMC(lib,"flagClassif.txt")
-    imageRecognition(lib,loadedModel,"frenchflag.jpg")
+    imageRecognition(lib,loadedModel,"franceflag.jpg")
+    imageRecognition(lib,loadedModel,"brasilflag.jpg")
+    imageRecognition(lib,loadedModel,"portugalflag.jpg")
